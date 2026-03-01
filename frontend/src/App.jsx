@@ -14,6 +14,7 @@ import StudentCalendarUpdate from './components/StudentCalendarUpdate';
 import AdminPowerAssignment from './components/AdminPowerAssignment';
 import UserManagement from './components/UserManagement';
 import ProtectedRoute from './components/ProtectedRoute';
+import DevelopersPage from './pages/DevelopersPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/developers" element={<DevelopersPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
