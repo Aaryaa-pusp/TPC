@@ -3,6 +3,7 @@ const Admin = require('../models/Admin');
 const User = require('../models/User');
 const Event = require('../models/Event');
 const Announcement = require('../models/Announcement');
+const Student = require('../models/Student');
 
 exports.getPendingCompanies = async (req, res) => {
     try {
@@ -151,6 +152,42 @@ exports.deleteAnnouncement = async (req, res) => {
         }
         res.status(200).json({ message: 'Announcement deleted' });
     } catch (err) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.getPendingStudents = async (req, res) => {
+    try {
+        const pendingStudents = await Student.find({ verificationStatus: 'pending' }).select('-otp -otpExpiry');
+        res.status(200).json({ pendingStudents });
+    } catch (err) {
+        console.error('getPendingStudents Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.verifyStudentData = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const { status } = req.body; // 'verified' or 'rejected'
+
+        if (!['verified', 'rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const student = await Student.findByIdAndUpdate(
+            studentId,
+            { verificationStatus: status },
+            { new: true }
+        );
+
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        res.status(200).json({ message: `Student verification marked as ${status}`, student });
+    } catch (err) {
+        console.error('verifyStudentData Error:', err);
         res.status(500).json({ message: 'Internal server error' });
     }
 };

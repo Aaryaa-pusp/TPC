@@ -7,6 +7,10 @@ router.use(verifyToken, requireRole(['admin'])); // All routes require admin
 
 router.get('/companies/pending', checkAdminRole(['super_admin']), adminController.getPendingCompanies);
 router.put('/companies/:companyId/verify', checkAdminRole(['super_admin']), adminController.verifyCompany);
+
+// Student Verification Routes
+router.get('/students/pending', checkAdminRole(['super_admin', 'student_admin']), adminController.getPendingStudents);
+router.put('/students/:studentId/verify', checkAdminRole(['super_admin', 'student_admin']), adminController.verifyStudentData);
 router.post('/assign-power', checkAdminRole(['super_admin', 'announcement_admin', 'student_admin']), adminController.assignAdminPower);
 router.post('/events', checkAdminRole(['super_admin', 'student_admin']), adminController.createEvent);
 

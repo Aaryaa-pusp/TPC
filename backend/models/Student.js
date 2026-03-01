@@ -31,6 +31,17 @@ const studentSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
     },
+    cgpa: {
+        type: Number,
+    },
+    idCardUrl: {
+        type: String,
+    },
+    verificationStatus: {
+        type: String,
+        enum: ['unsubmitted', 'pending', 'verified', 'rejected'],
+        default: 'unsubmitted'
+    }
 });
 
 const Student = User.discriminator('student', studentSchema);
