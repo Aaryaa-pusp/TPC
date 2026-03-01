@@ -92,6 +92,7 @@ export default function DashboardShell() {
                                 <SidebarItem icon={Bell} label="Announcements" path="/dashboard/student/announcements" />
                                 <SidebarItem icon={CalendarIcon} label="Calendar & Events" path="/dashboard/student/calendar" />
                                 <SidebarItem icon={FileText} label="My Resumes" path="/dashboard/student/resumes" />
+                                <SidebarItem icon={CheckCircle} label="Verify Yourself" path="/dashboard/student/verify" />
                             </>
                         )}
 
@@ -114,7 +115,10 @@ export default function DashboardShell() {
                                     <SidebarItem icon={Bell} label="Manage Announcements" path="/dashboard/admin/announcements" />
                                 )}
                                 {user.adminType === 'super_admin' && (
-                                    <SidebarItem icon={CheckCircle} label="Verify Companies" path="/dashboard/admin/companies" />
+                                    <>
+                                        <SidebarItem icon={CheckCircle} label="Verify Companies" path="/dashboard/admin/companies" />
+                                        <SidebarItem icon={CheckCircle} label="Verify Students" path="/dashboard/admin/students/verify" />
+                                    </>
                                 )}
                                 {(user.adminType === 'super_admin' || user.adminType === 'student_admin') && (
                                     <SidebarItem icon={CalendarIcon} label="Manage Calendar" path="/dashboard/admin/calendar" />

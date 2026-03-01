@@ -123,7 +123,7 @@ export default function LandingPage() {
                     <div className="mt-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
                         <h3 className="text-xl font-bold text-gray-900 mb-8 text-center sm:text-left">Placement Percentage by Program</h3>
                         <div className="h-80 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                 <BarChart data={placementData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} />
                                     <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `${value}%`} />

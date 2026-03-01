@@ -14,6 +14,8 @@ import StudentCalendarUpdate from './components/StudentCalendarUpdate';
 import AdminPowerAssignment from './components/AdminPowerAssignment';
 import UserManagement from './components/UserManagement';
 import ProtectedRoute from './components/ProtectedRoute';
+import StudentVerificationForm from './components/StudentVerificationForm';
+import StudentVerificationQueue from './components/StudentVerificationQueue';
 
 function App() {
   return (
@@ -30,10 +32,12 @@ function App() {
             </ProtectedRoute>
           }>
             <Route path="student" element={<StudentDashboard />} />
+            <Route path="student/verify" element={<StudentVerificationForm />} />
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="admin" element={<AdminDashboard />}>
               <Route path="announcements" element={<ManageAnnouncements />} />
               <Route path="companies" element={<CompanyVerificationQueue />} />
+              <Route path="students/verify" element={<StudentVerificationQueue />} />
               <Route path="calendar" element={<StudentCalendarUpdate />} />
               <Route path="assign-powers" element={<AdminPowerAssignment />} />
               <Route path="users" element={<UserManagement />} />
