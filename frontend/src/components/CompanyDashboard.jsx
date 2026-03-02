@@ -187,12 +187,12 @@ export default function CompanyDashboard() {
                                                 <span className="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-blue-100 text-blue-800 mr-2 border border-blue-200 shadow-sm">
                                                     {student.program}
                                                 </span>
-                                                <span className="text-sm text-slate-600 font-medium">{student.branch}</span>
+                                                <span className="text-sm text-slate-600 font-medium">{student.department || student.branch || 'N/A'}</span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <span className={`text-sm font-bold ${student.cgpa >= 8.5 ? 'text-emerald-600' : 'text-slate-700'}`}>
-                                                        {student.cgpa.toFixed(2)}
+                                                        {student.cgpa ? Number(student.cgpa).toFixed(2) : 'N/A'}
                                                     </span>
                                                 </div>
                                             </td>

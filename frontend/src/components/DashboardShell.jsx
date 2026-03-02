@@ -102,9 +102,9 @@ export default function DashboardShell() {
                                     icon={Database}
                                     label="Student Database"
                                     path="/dashboard/company/database"
-                                    disabled={user.verificationStatus === 'pending'}
+                                    disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
                                 />
-                                <SidebarItem icon={CheckCircle} label="Verification Status" path="/dashboard/company/verification" />
+                                <SidebarItem icon={CheckCircle} label="Verification Status" path="/dashboard/company/verify" />
                                 <SidebarItem icon={Building} label="Company Profile" path="/dashboard/company/profile" />
                             </>
                         )}
