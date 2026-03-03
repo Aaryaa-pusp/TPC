@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { BookOpen, MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
+import DevelopersRibbon from '../components/DevelopersRibbon';
+import HomePageCharts from '../components/HomePageCharts';
 
 const placementData = [
     { name: 'B.Tech', rate: 94 },
@@ -29,6 +31,7 @@ export default function LandingPage() {
                             <a href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</a>
                             <a href="#stats" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Statistics</a>
                             <a href="#contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact</a>
+                            <Link to="/developers" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Developers</Link>
                             <div className="h-6 w-px bg-gray-200"></div>
                             <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Log in</Link>
                             <Link to="/login" className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
@@ -82,59 +85,9 @@ export default function LandingPage() {
             </div>
 
             {/* Statistics Section */}
-            <section id="stats" className="py-24 bg-white relative">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Placement Statistics 2023-24</h2>
-                        <p className="mt-4 text-xl text-gray-500 font-light">A testament to our academic excellence and industry relevance</p>
-                    </div>
+            <HomePageCharts />
 
-                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 mb-16">
-                        <div className="bg-white p-8 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
-                            <div className="text-blue-600 mb-2">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                            </div>
-                            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Highest Package</p>
-                            <p className="mt-2 text-4xl font-extrabold text-gray-900 group">
-                                82.05 <span className="text-2xl text-gray-400 font-medium">LPA</span>
-                            </p>
-                        </div>
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform duration-300 text-white relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>
-                            </div>
-                            <p className="text-sm font-medium text-blue-100 uppercase tracking-wider">Average Package</p>
-                            <p className="mt-2 text-4xl font-extrabold">
-                                23.90 <span className="text-2xl font-medium opacity-80">LPA</span>
-                            </p>
-                        </div>
-                        <div className="bg-white p-8 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
-                            <div className="text-blue-600 mb-2">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                            </div>
-                            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Median Package</p>
-                            <p className="mt-2 text-4xl font-extrabold text-gray-900">
-                                20.00 <span className="text-2xl text-gray-400 font-medium">LPA</span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <h3 className="text-xl font-bold text-gray-900 mb-8 text-center sm:text-left">Placement Percentage by Program</h3>
-                        <div className="h-80 w-full">
-                            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                                <BarChart data={placementData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                                    <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `${value}%`} />
-                                    <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                                    <Bar dataKey="rate" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={60} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <DevelopersRibbon />
 
             {/* Footer */}
             <footer id="contact" className="bg-slate-900 pt-16 pb-8 text-white relative">

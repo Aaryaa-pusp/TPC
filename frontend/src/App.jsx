@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import DevelopersPage from './pages/DevelopersPage';
 import DashboardShell from './components/DashboardShell';
 import StudentDashboard from './components/StudentDashboard';
 import CompanyDashboard from './components/CompanyDashboard';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/developers" element={<DevelopersPage />} />
 
           <Route path="/dashboard" element={
             <ProtectedRoute>
