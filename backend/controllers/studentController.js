@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 const Student = require('../models/Student');
+const Announcement = require('../models/Announcement');
 
 exports.getEvents = async (req, res) => {
     try {
@@ -7,7 +8,14 @@ exports.getEvents = async (req, res) => {
 
         const query = {};
         if (type) query.type = type;
-        if (targetBranch) query.targetBranches = targetBranch; // Matches if targetBranch is in the array
+
+        const targetBranchesRegex = [];
+        if (targetBranch && targetBranch.trim() && targetBranch.trim().toLowerCase() !== 'undefined') {
+            targetBranchesRegex.push(new RegExp(`^${targetBranch.trim()}$`, 'i'));
+        }
+        // Always allow matching 'All'
+        targetBranchesRegex.push(/^all$/i);
+        query.targetBranches = { $in: targetBranchesRegex };
 
         const events = await Event.find(query).sort({ date: 1 });
         res.status(200).json({ events });
@@ -19,16 +27,36 @@ exports.getEvents = async (req, res) => {
 
 exports.getAnnouncements = async (req, res) => {
     try {
-        const { branch, batch } = req.query;
-        // Announcements could be Events of type 'workshop' or special schema. 
-        // We will use Event with specific targetBranches.
-        const query = {};
-        if (branch) {
-            query.targetBranches = { $in: [branch, 'All'] };
-        }
+        const { branch, program } = req.query;
 
-        // For simplicity, we just return events sorted by createdAt for announcements
-        const announcements = await Event.find(query).sort({ createdAt: -1 }).limit(20);
+        const andConditions = [];
+
+        // 1. Filter by branch (targetBranches array), case-insensitive
+        //    Always include announcements targeted to 'all' branches
+        const branchesRegex = [/^all$/i];
+        if (branch && branch.trim() && branch.trim().toLowerCase() !== 'undefined') {
+            branchesRegex.push(new RegExp(`^${branch.trim()}$`, 'i'));
+        }
+        andConditions.push({ targetBranches: { $in: branchesRegex } });
+
+        // 2. Filter by targetAudience (student program → enum mapping), case-insensitive
+        //    Map frontend program strings ('B.Tech', 'M.Tech', 'M.Sc') to schema enums
+        const programMap = {
+            'btech': 'btech', 'b.tech': 'btech', 'b tech': 'btech',
+            'mtech': 'mtech', 'm.tech': 'mtech', 'm tech': 'mtech',
+            'msc': 'msc', 'm.sc': 'msc', 'm sc': 'msc',
+            'phd': 'phd'
+        };
+        const audienceConditions = [{ targetAudience: 'all' }];
+        if (program && program.trim() && program.trim().toLowerCase() !== 'undefined') {
+            const mapped = programMap[program.trim().toLowerCase()];
+            if (mapped) audienceConditions.push({ targetAudience: mapped });
+        }
+        andConditions.push({ $or: audienceConditions });
+
+        const query = { $and: andConditions };
+
+        const announcements = await Announcement.find(query).sort({ createdAt: -1 }).limit(20);
         res.status(200).json({ announcements });
     } catch (err) {
         console.error('getAnnouncements Error:', err);

@@ -213,6 +213,6 @@ exports.verifyOtp = async (req, res) => {
         });
     } catch (err) {
         console.error('Verify OTP Error:', err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error' , error: err.message});
     }
 };

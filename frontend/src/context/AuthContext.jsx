@@ -5,42 +5,50 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('jwtToken') || null);
-    const [loading, setLoading] = useState(true); // for checking token on load
+    const [loading, setLoading] = useState(true);
+
+    // Rehydrate full user object from localStorage (stored at login time)
+    const [user, setUser] = useState(() => {
+        try {
+            const stored = localStorage.getItem('userData');
+            return stored ? JSON.parse(stored) : null;
+        } catch {
+            return null;
+        }
+    });
 
     useEffect(() => {
-        if (token) {
-            // Decode token or fetch user profile from an /api/auth/me route if it existed
-            // For now, let's just parse the JWT payload or trust it
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                setUser(payload);
-            } catch (e) {
-                setToken(null);
-                setUser(null);
-                localStorage.removeItem('jwtToken');
-            }
-        } else {
+        if (!token) {
             setUser(null);
+            localStorage.removeItem('userData');
         }
         setLoading(false);
     }, [token]);
 
     const login = (newToken, userData) => {
         localStorage.setItem('jwtToken', newToken);
+        // Persist the full user profile so department/program/graduationYear survive page reloads
+        if (userData) {
+            localStorage.setItem('userData', JSON.stringify(userData));
+        }
         setToken(newToken);
-        setUser(userData); // Or decoded token
+        setUser(userData);
     };
 
     const logout = () => {
         localStorage.removeItem('jwtToken');
+        localStorage.removeItem('userData');
         setToken(null);
         setUser(null);
     };
 
     const updateUser = (newUserData) => {
-        setUser((prev) => ({ ...prev, ...newUserData }));
+        setUser((prev) => {
+            const updated = { ...prev, ...newUserData };
+            localStorage.setItem('userData', JSON.stringify(updated));
+            return updated;
+        });
     };
 
     return (

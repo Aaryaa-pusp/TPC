@@ -14,7 +14,7 @@ exports.getUnifiedCalendar = async (req, res) => {
 
         const query = {};
         if (userBranch) {
-            query.targetBranches = { $in: [userBranch, 'All'] };
+            query.targetBranches = { $in: [new RegExp(`^${userBranch}$`, 'i'), /^all$/i] };
         }
 
         const [events, announcements] = await Promise.all([
