@@ -72,3 +72,42 @@ exports.submitVerification = async (req, res) => {
         res.status(500).json({ message: 'Internal server error during company verification submission.' });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const companyId = req.user.userId;
+
+        const company = await Company.findById(companyId);
+        if (!company) {
+            return res.status(404).json({ message: 'Company not found.' });
+        }
+
+        // Gatekeeper
+        if (company.verificationStatus !== 'verified') {
+            return res.status(403).json({ message: 'Profile editing is restricted until verification is complete.' });
+        }
+
+        // Destructure ONLY allowed editable fields (Field-Level Immutability)
+        const { companyWebsite, HRContactName, HRContactEmail, contactNumber } = req.body;
+
+        const updateData = {};
+        if (companyWebsite !== undefined) updateData.companyWebsite = companyWebsite;
+        if (HRContactName !== undefined) updateData.HRContactName = HRContactName;
+        if (HRContactEmail !== undefined) updateData.HRContactEmail = HRContactEmail;
+        if (contactNumber !== undefined) updateData.contactNumber = contactNumber;
+
+        const updatedCompany = await Company.findByIdAndUpdate(
+            companyId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            message: 'Company profile updated successfully.',
+            company: updatedCompany
+        });
+    } catch (err) {
+        console.error('updateProfile Error:', err);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};

@@ -20,4 +20,7 @@ router.post('/announcements', checkAdminRole(['super_admin', 'announcement_admin
 router.put('/announcements/:id', checkAdminRole(['super_admin', 'announcement_admin']), adminController.updateAnnouncement);
 router.delete('/announcements/:id', checkAdminRole(['super_admin', 'announcement_admin']), adminController.deleteAnnouncement);
 
+// Profile editing for Admins
+router.put('/profile/:adminId/role', checkAdminRole(['super_admin']), adminController.updateAdminRole);
+
 module.exports = router;

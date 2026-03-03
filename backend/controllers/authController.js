@@ -216,3 +216,16 @@ exports.verifyOtp = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+exports.getCurrentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-otp -otpExpiry');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ user });
+    } catch (err) {
+        console.error('Get Current User Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};

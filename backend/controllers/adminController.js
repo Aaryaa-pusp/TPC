@@ -191,3 +191,46 @@ exports.verifyStudentData = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+exports.updateAdminRole = async (req, res) => {
+    try {
+        const { adminId } = req.params;
+        const currentUserId = req.user.userId;
+        const { adminType } = req.body;
+
+        // Gatekeeper: Only Super Admin can change roles.
+        // Also prevent a Super Admin from changing their OWN role through this endpoint as a safety measure.
+        if (req.user.adminType !== 'super_admin') {
+            return res.status(403).json({ message: 'Only Super Admins can update admin roles.' });
+        }
+
+        if (adminId === currentUserId) {
+            return res.status(400).json({ message: 'You cannot change your own role.' });
+        }
+
+        if (!['super_admin', 'announcement_admin', 'student_admin'].includes(adminType)) {
+            return res.status(400).json({ message: 'Invalid admin role.' });
+        }
+
+        const adminUpdates = { adminType };
+
+        const updatedAdmin = await Admin.findByIdAndUpdate(
+            adminId,
+            adminUpdates,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedAdmin) {
+            return res.status(404).json({ message: 'Admin not found.' });
+        }
+
+        res.status(200).json({
+            message: 'Admin role updated successfully.',
+            admin: updatedAdmin
+        });
+
+    } catch (err) {
+        console.error('updateAdminRole Error:', err);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};

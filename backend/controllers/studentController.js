@@ -96,3 +96,52 @@ exports.submitVerification = async (req, res) => {
         res.status(500).json({ message: 'Internal server error during verification submission.' });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const studentId = req.user.userId;
+
+        // Fetch student to check verification status
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found.' });
+        }
+
+        // Gatekeeper: Only verified students can update their profile
+        if (student.verificationStatus !== 'verified') {
+            return res.status(403).json({ message: 'Profile editing is restricted until verification is complete.' });
+        }
+
+        // Destructure ONLY the allowed editable fields (Field-Level Immutability)
+        const { phoneNumber } = req.body;
+
+        const updateData = {};
+        if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+
+        // Handle Resume Upload
+        if (req.file && req.file.path) {
+            const { uploadOnCloudinary } = require('../utils/cloudinaryConfig');
+            const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+
+            if (cloudinaryResponse) {
+                updateData.resumeLink = cloudinaryResponse.url;
+            } else {
+                return res.status(500).json({ message: 'Error uploading resume to Cloudinary.' });
+            }
+        }
+
+        const updatedStudent = await Student.findByIdAndUpdate(
+            studentId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            message: 'Profile updated successfully.',
+            student: updatedStudent
+        });
+    } catch (err) {
+        console.error('updateProfile Error:', err);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+};

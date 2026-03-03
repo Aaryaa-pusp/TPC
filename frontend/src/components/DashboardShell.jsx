@@ -67,7 +67,11 @@ export default function DashboardShell() {
                     {/* Profile Widget */}
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex flex-col items-center">
-                            <div className="relative group cursor-pointer mb-4">
+                            <div
+                                className="relative group cursor-pointer mb-4"
+                                onClick={() => navigate(`/dashboard/${user.role}/profile`)}
+                                title="Edit Profile"
+                            >
                                 <div className="w-20 h-20 bg-gradient-to-tr from-blue-100 to-indigo-50 rounded-full flex items-center justify-center shadow-inner border-4 border-whte ring-1 ring-slate-200">
                                     <UserCircle size={40} strokeWidth={1} className="text-blue-400" />
                                 </div>

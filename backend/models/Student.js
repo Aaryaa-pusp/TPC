@@ -37,6 +37,9 @@ const studentSchema = new mongoose.Schema({
     idCardUrl: {
         type: String,
     },
+    resumeLink: {
+        type: String,
+    },
     verificationStatus: {
         type: String,
         enum: ['unsubmitted', 'pending', 'verified', 'rejected'],

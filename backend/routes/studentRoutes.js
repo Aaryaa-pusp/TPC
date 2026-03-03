@@ -7,5 +7,6 @@ const { upload } = require('../utils/cloudinaryConfig');
 router.get('/events', verifyToken, requireRole(['student', 'admin']), studentController.getEvents);
 router.get('/announcements', verifyToken, requireRole(['student', 'admin']), studentController.getAnnouncements);
 router.post('/verify', verifyToken, requireRole(['student']), upload.single('idCard'), studentController.submitVerification);
+router.put('/profile', verifyToken, requireRole(['student']), upload.single('resume'), studentController.updateProfile);
 
 module.exports = router;

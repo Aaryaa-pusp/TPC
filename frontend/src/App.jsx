@@ -18,6 +18,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import StudentVerificationForm from './components/StudentVerificationForm';
 import StudentVerificationQueue from './components/StudentVerificationQueue';
 import CompanyVerificationForm from './components/CompanyVerificationForm';
+import EditProfile from './pages/EditProfile';
+import MyResumes from './pages/MyResumes';
 
 function App() {
   return (
@@ -38,13 +40,14 @@ function App() {
             <Route path="student/verify" element={<StudentVerificationForm />} />
             <Route path="student/announcements" element={<Placeholder title="Announcements" />} />
             <Route path="student/calendar" element={<Placeholder title="Calendar & Events" />} />
-            <Route path="student/resumes" element={<Placeholder title="My Resumes" />} />
+            <Route path="student/resumes" element={<MyResumes />} />
+            <Route path="student/profile" element={<EditProfile />} />
             <Route path="student/*" element={<Navigate to="/dashboard/student" replace />} />
 
             <Route path="company" element={<CompanyDashboard />} />
             <Route path="company/verify" element={<CompanyVerificationForm />} />
             <Route path="company/database" element={<CompanyDashboard />} />
-            <Route path="company/profile" element={<Placeholder title="Company Profile" />} />
+            <Route path="company/profile" element={<EditProfile />} />
             <Route path="company/*" element={<Navigate to="/dashboard/company" replace />} />
 
             <Route path="admin" element={<AdminDashboard />}>
@@ -54,6 +57,7 @@ function App() {
               <Route path="calendar" element={<StudentCalendarUpdate />} />
               <Route path="assign-powers" element={<AdminPowerAssignment />} />
               <Route path="users" element={<UserManagement />} />
+              <Route path="profile" element={<EditProfile />} />
               <Route index element={<Navigate to="announcements" replace />} />
             </Route>
             <Route path="admin/*" element={<Navigate to="/dashboard/admin" replace />} />
