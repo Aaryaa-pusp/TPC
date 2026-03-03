@@ -20,6 +20,8 @@ import {
     ExternalLink,
     Star,
 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const BRANCH_OPTIONS = ['CSE', 'EE', 'ME', 'CE', 'CBE'];
 const PROGRAM_OPTIONS = ['B.Tech', 'M.Tech', 'M.Sc'];
@@ -235,6 +237,59 @@ export default function CompanyDashboard() {
 
     const hasFilters = Boolean(cgpa || branch.length || program.length || selectedEventId);
 
+    const exportToPDF = () => {
+        if (students.length === 0) return;
+
+        const doc = new jsPDF();
+
+        // Header Setup
+        doc.setFillColor(30, 58, 138); // blue-900 baseline
+        doc.rect(0, 0, doc.internal.pageSize.width, 35, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('IIT Patna TPC - Applicants Database', 14, 22);
+
+        // Title context based on filter
+        doc.setTextColor(50, 50, 50);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        let contextText = 'All Applicants';
+        if (selectedEventId) {
+            const ev = companyEvents.find(e => e._id === selectedEventId);
+            if (ev) contextText = `Event: ${ev.title} (${ev.type.replace('_', ' ')})`;
+        }
+
+        const timestamp = new Date().toLocaleString();
+        doc.text(contextText, 14, 45);
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated on: ${timestamp} | Total: ${students.length}`, 14, 52);
+
+        // Map data to AutoTable Format
+        const tableColumn = ["Roll No", "Name", "Email", "Program / Branch", "CGPA"];
+        const tableRows = students.map(student => [
+            student.rollNumber || '—',
+            student.fullName || student.name || '—',
+            student.email,
+            `${student.program} - ${student.department || student.branch || ''}`,
+            student.cgpa != null ? Number(student.cgpa).toFixed(2) : 'N/A'
+        ]);
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 58,
+            theme: 'striped',
+            headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+            bodyStyles: { textColor: 50 },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+        });
+
+        doc.save(`Applicants_List_${new Date().getTime()}.pdf`);
+    };
+
     if (user?.verificationStatus === 'pending' || user?.verificationStatus === 'unsubmitted') {
         return (
             <div className="flex flex-col items-center justify-center h-[70vh] text-center max-w-md mx-auto animate-[fade-in-up_0.5s_ease-out]">
@@ -270,7 +325,14 @@ export default function CompanyDashboard() {
                         <span className="font-semibold text-slate-700 dark:text-slate-100"> {students.length} found</span>
                     </p>
                 </div>
-                <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition shadow-md shadow-blue-500/20">
+                <button
+                    onClick={exportToPDF}
+                    disabled={students.length === 0 || loading || eventsLoading}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${students.length === 0 || loading || eventsLoading
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/20'
+                        }`}
+                >
                     <Download size={18} /> Export List
                 </button>
             </div>
