@@ -2,21 +2,53 @@ const Student = require('../models/Student');
 const Company = require('../models/Company');
 
 exports.getStudents = async (req, res) => {
+    const Event = require('../models/Event');
     try {
-        const { cgpa, branch, program } = req.query;
+        const { cgpa, branch, program, eventId } = req.query;
+        const companyId = req.user.userId;
 
-        // Construct dynamic MongoDB query
+        // Find Company
+        const company = await Company.findById(companyId);
+        if (!company) {
+            return res.status(404).json({ message: "Company not found" });
+        }
+
+        let appliedStudentIds = null;
+
+        if (eventId) {
+            // Fetch students matching specific event
+            if (!company.events.includes(eventId)) {
+                return res.status(403).json({ message: 'Event not found or unauthorized' });
+            }
+            const event = await Event.findById(eventId);
+            appliedStudentIds = event ? event.appliedStudents : [];
+        } else {
+            // Aggregate all students that have applied to ANY event managed by this company
+            const allEvents = await Event.find({ _id: { $in: company.events } });
+            appliedStudentIds = allEvents.reduce((acc, curr) => {
+                return acc.concat(curr.appliedStudents || []);
+            }, []);
+            // Dedup array
+            appliedStudentIds = [...new Set(appliedStudentIds)];
+        }
+
         const query = {};
+
+        // appliedStudents stores email strings — match on email field
+        if (appliedStudentIds.length === 0) {
+            return res.status(200).json({ students: [] });
+        }
+        query.email = { $in: appliedStudentIds };
 
         if (cgpa) {
             query.cgpa = { $gte: parseFloat(cgpa) };
         }
 
         if (branch) {
-            // Expecting a comma-separated list of branches
-            const branchArray = branch.split(',').map(b => b.trim());
+            // Student schema field is `department` (not `branch`)
+            const branchArray = branch.split(',').map(b => b.trim()).filter(Boolean);
             if (branchArray.length > 0) {
-                query.branch = { $in: branchArray };
+                query.department = { $in: branchArray };
             }
         }
 
@@ -109,5 +141,17 @@ exports.updateProfile = async (req, res) => {
     } catch (err) {
         console.error('updateProfile Error:', err);
         res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
+exports.getCompanyEvents = async (req, res) => {
+    const Event = require('../models/Event');
+    try {
+        const companyId = req.user.userId;
+        const events = await Event.find({ createdBy: companyId });
+        res.status(200).json({ events });
+    } catch (err) {
+        console.error('getCompanyEvents Error:', err);
+        res.status(500).json({ message: 'Internal server error while fetching events' });
     }
 };
