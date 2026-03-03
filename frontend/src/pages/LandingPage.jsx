@@ -4,7 +4,6 @@ import { BookOpen, MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import HomePageCharts from '../components/HomePageCharts';
 import logo from '../assets/logo.png';
 import DevelopersRibbon from '../components/DevelopersRibbon';
-import HomePageCharts from '../components/HomePageCharts';
 
 const placementData = [
     { name: 'B.Tech', rate: 94 },
@@ -33,7 +32,6 @@ export default function LandingPage() {
                             <Link to="/developers" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Developers</Link>
                             <a href="#stats" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Statistics</a>
                             <a href="#contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact</a>
-                            <Link to="/developers" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Developers</Link>
                             <div className="h-6 w-px bg-gray-200"></div>
                             <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Log in</Link>
                             <Link to="/login" className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
@@ -101,7 +99,6 @@ export default function LandingPage() {
                 </div>
             </section>
             {/* Statistics Section */}
-            <HomePageCharts />
 
             <DevelopersRibbon />
 
