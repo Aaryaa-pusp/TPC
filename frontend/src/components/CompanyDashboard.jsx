@@ -3,7 +3,9 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import {
     Search, Filter, AlertTriangle, Download,
-    ChevronRight, GraduationCap, Calendar as CalendarIcon, Tag
+    ChevronRight, GraduationCap, Calendar as CalendarIcon, Tag,
+    ArrowLeft, User, Mail, Hash, Phone, Building2, Award,
+    FileText, ExternalLink, Star
 } from 'lucide-react';
 
 const EVENT_TYPE_COLORS = {
@@ -12,6 +14,143 @@ const EVENT_TYPE_COLORS = {
     workshop: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
+const PROGRAM_COLORS = {
+    'B.Tech': 'bg-blue-100 text-blue-800 border-blue-200',
+    'M.Tech': 'bg-violet-100 text-violet-800 border-violet-200',
+    'M.Sc': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+};
+
+const STATUS_COLORS = {
+    verified: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+    pending: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    rejected: 'text-red-600 bg-red-50 border-red-200',
+    unsubmitted: 'text-slate-500 bg-slate-50 border-slate-200',
+};
+
+// ─── Inline Student Profile ──────────────────────────────────────────
+function StudentProfile({ student, onBack }) {
+    const cgpaColor = student.cgpa >= 8.5
+        ? 'text-emerald-600'
+        : student.cgpa >= 7.0
+            ? 'text-blue-600'
+            : 'text-slate-700';
+
+    return (
+        <div className="space-y-6 animate-[fade-in-up_0.3s_ease-out]">
+            {/* Back button */}
+            <button
+                onClick={onBack}
+                className="flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-800 transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl border border-blue-100"
+            >
+                <ArrowLeft size={18} /> Back to Applicants List
+            </button>
+
+            {/* Profile card */}
+            <div className="bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden">
+                <div className="px-8 pb-8 pt-8">
+                    {/* Avatar + name */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+                        <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center text-blue-600 shrink-0">
+                            <User size={44} strokeWidth={1.5} />
+                        </div>
+                        <div className="pb-1">
+                            <h2 className="text-2xl font-extrabold text-slate-900 leading-tight">
+                                {student.fullName || student.name || '—'}
+                            </h2>
+                            <div className="flex items-center gap-2 flex-wrap mt-1">
+                                <span className={`text-xs font-bold px-3 py-1 rounded-full border ${PROGRAM_COLORS[student.program] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                                    {student.program}
+                                </span>
+                                <span className="text-sm text-slate-500 font-medium">
+                                    {student.department || student.branch || ''}
+                                </span>
+                                {student.institute && (
+                                    <span className="text-sm text-slate-400">· {student.institute}</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* CGPA highlight */}
+                        <div className="lg:col-span-1 flex flex-col gap-4">
+                            <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4">
+                                <Star size={22} className="text-yellow-400 fill-yellow-400 shrink-0" />
+                                <div>
+                                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-0.5">CGPA</p>
+                                    <p className={`text-3xl font-extrabold ${cgpaColor}`}>
+                                        {student.cgpa != null ? Number(student.cgpa).toFixed(2) : 'N/A'}
+                                        <span className="text-sm font-semibold text-slate-400 ml-1">/ 10</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {student.verificationStatus && (
+                                <div className="bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Verification</p>
+                                    <span className={`text-sm font-bold px-3 py-1 rounded-full border capitalize ${STATUS_COLORS[student.verificationStatus] || ''}`}>
+                                        {student.verificationStatus}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Resume */}
+                            <div>
+                                {student.resumeLink ? (
+                                    <a
+                                        href={student.resumeLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow shadow-blue-500/25"
+                                    >
+                                        <FileText size={18} />
+                                        View Resume
+                                        <ExternalLink size={14} className="opacity-70" />
+                                    </a>
+                                ) : (
+                                    <div className="w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-400 font-semibold py-3 rounded-xl border border-slate-200 cursor-not-allowed select-none">
+                                        <FileText size={18} />
+                                        No Resume Uploaded
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="lg:col-span-2 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 space-y-4">
+                            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200 pb-3">
+                                Personal Information
+                            </h3>
+                            <InfoRow icon={<Mail size={16} />} label="Email" value={student.email} />
+                            <InfoRow icon={<Hash size={16} />} label="Roll Number" value={student.rollNumber} mono />
+                            <InfoRow icon={<GraduationCap size={16} />} label="Program" value={student.program} />
+                            <InfoRow icon={<Building2 size={16} />} label="Department" value={student.department || student.branch} />
+                            <InfoRow icon={<CalendarIcon size={16} />} label="Grad. Year" value={student.graduationYear} />
+                            <InfoRow icon={<Building2 size={16} />} label="Institute" value={student.institute || 'IIT Patna'} />
+                            {student.phoneNumber && (
+                                <InfoRow icon={<Phone size={16} />} label="Phone" value={student.phoneNumber} />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function InfoRow({ icon, label, value, mono = false }) {
+    return (
+        <div className="flex items-center gap-3">
+            <span className="text-slate-400 shrink-0">{icon}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 w-28 shrink-0">{label}</span>
+            <span className={`text-sm text-slate-800 font-medium truncate ${mono ? 'font-mono tracking-wide' : ''}`}>
+                {value || '—'}
+            </span>
+        </div>
+    );
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────
 export default function CompanyDashboard() {
     const { user, token } = useAuth();
     const [students, setStudents] = useState([]);
@@ -23,23 +162,20 @@ export default function CompanyDashboard() {
     const [cgpa, setCgpa] = useState('');
     const [branch, setBranch] = useState([]);
     const [program, setProgram] = useState([]);
-    const [selectedEventId, setSelectedEventId] = useState(''); // '' = all events combined
+    const [selectedEventId, setSelectedEventId] = useState('');
+
+    // Inline profile view
+    const [selectedStudent, setSelectedStudent] = useState(null);
 
     const branchOptions = ['CSE', 'EE', 'ME', 'CE', 'CBE'];
     const programOptions = ['B.Tech', 'M.Tech', 'M.Sc'];
 
-    // Fetch company's own events once on mount
     useEffect(() => {
-        if (user?.verificationStatus === 'verified') {
-            fetchCompanyEvents();
-        }
+        if (user?.verificationStatus === 'verified') fetchCompanyEvents();
     }, [user?.verificationStatus]);
 
-    // Re-fetch students whenever any filter changes
     useEffect(() => {
-        if (user?.verificationStatus === 'verified') {
-            fetchStudents();
-        }
+        if (user?.verificationStatus === 'verified') fetchStudents();
     }, [cgpa, branch, program, selectedEventId]);
 
     const fetchCompanyEvents = async () => {
@@ -81,7 +217,6 @@ export default function CompanyDashboard() {
     };
 
     const clearAll = () => { setCgpa(''); setBranch([]); setProgram([]); setSelectedEventId(''); };
-
     const hasFilters = cgpa || branch.length || program.length || selectedEventId;
 
     if (user?.verificationStatus === 'pending' || user?.verificationStatus === 'unsubmitted') {
@@ -102,6 +237,17 @@ export default function CompanyDashboard() {
         );
     }
 
+    // ── If a student is selected, show inline profile ──
+    if (selectedStudent) {
+        return (
+            <StudentProfile
+                student={selectedStudent}
+                onBack={() => setSelectedStudent(null)}
+            />
+        );
+    }
+
+    // ── Default: show applicants list ──
     return (
         <div className="space-y-6 animate-[fade-in-up_0.5s_ease-out]">
 
@@ -129,7 +275,6 @@ export default function CompanyDashboard() {
                     <h3 className="font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
                         <Filter size={20} className="text-blue-500" /> Advanced Filters
                     </h3>
-
                     <div className="space-y-6">
 
                         {/* Event selector */}
@@ -141,7 +286,7 @@ export default function CompanyDashboard() {
                                 <div className="h-9 bg-slate-100 rounded-xl animate-pulse" />
                             ) : companyEvents.length === 0 ? (
                                 <p className="text-xs text-slate-400 italic bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    No events posted yet. Create one via the admin calendar.
+                                    No events posted yet.
                                 </p>
                             ) : (
                                 <select
@@ -157,8 +302,6 @@ export default function CompanyDashboard() {
                                     ))}
                                 </select>
                             )}
-
-                            {/* Selected event chip */}
                             {selectedEventId && (() => {
                                 const ev = companyEvents.find(e => e._id === selectedEventId);
                                 return ev ? (
@@ -185,7 +328,7 @@ export default function CompanyDashboard() {
                             </div>
                         </div>
 
-                        {/* Program checkboxes */}
+                        {/* Program */}
                         <div>
                             <label className="block text-xs font-bold text-slate-600 mb-3 uppercase tracking-wider">Program</label>
                             <div className="space-y-2">
@@ -203,7 +346,7 @@ export default function CompanyDashboard() {
                             </div>
                         </div>
 
-                        {/* Branch checkboxes */}
+                        {/* Branch */}
                         <div>
                             <label className="block text-xs font-bold text-slate-600 mb-3 uppercase tracking-wider">Branch</label>
                             <div className="space-y-2">
@@ -242,13 +385,9 @@ export default function CompanyDashboard() {
                                 <Search size={28} className="text-slate-300" />
                             </div>
                             <p className="text-lg font-semibold text-slate-700">
-                                {selectedEventId
-                                    ? 'No applicants found for this event.'
-                                    : 'No applicants yet across your events.'}
+                                {selectedEventId ? 'No applicants found for this event.' : 'No applicants yet across your events.'}
                             </p>
-                            <p className="text-sm text-slate-400">
-                                Students appear here once they apply to your posted events.
-                            </p>
+                            <p className="text-sm text-slate-400">Students appear here once they apply to your posted events.</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -288,7 +427,12 @@ export default function CompanyDashboard() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-bold">
-                                                <button className="hover:text-blue-900 group-hover:underline">View Profile</button>
+                                                <button
+                                                    onClick={() => setSelectedStudent(student)}
+                                                    className="hover:text-blue-900 hover:underline transition-colors"
+                                                >
+                                                    View Profile
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

@@ -43,6 +43,10 @@ const eventSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    companyRef: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
     }
 }, { timestamps: true });
 
@@ -55,7 +59,9 @@ eventSchema.pre('save', function (next) {
     if (!this.date) {
         this.date = this.startDate;
     }
-    next();
+    if (typeof next === 'function') {
+        next();
+    }
 });
 
 const Event = mongoose.model('Event', eventSchema);

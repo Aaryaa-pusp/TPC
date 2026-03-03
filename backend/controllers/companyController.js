@@ -148,7 +148,13 @@ exports.getCompanyEvents = async (req, res) => {
     const Event = require('../models/Event');
     try {
         const companyId = req.user.userId;
-        const events = await Event.find({ createdBy: companyId });
+        // Fetch events where this company is either the direct creator or was explicitly linked by an Admin
+        const events = await Event.find({
+            $or: [
+                { createdBy: companyId },
+                { companyRef: companyId }
+            ]
+        });
         res.status(200).json({ events });
     } catch (err) {
         console.error('getCompanyEvents Error:', err);
