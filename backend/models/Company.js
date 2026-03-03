@@ -34,7 +34,11 @@ const companySchema = new mongoose.Schema({
     verificationDeadline: {
         type: Date,
         default: () => Date.now() + 48 * 60 * 60 * 1000,
-    }
+    },
+    events: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event'
+    }]
 });
 
 // Implement MongoDB TTL index 

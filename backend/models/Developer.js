@@ -5,16 +5,12 @@ const DeveloperSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    role: {
-        type: String, // e.g., 'Full Stack Engineer', 'Backend Specialist'
+    roll: {
+        type: String, 
         required: true,
     },
-    specialTag: {
-        type: String, // e.g., 'React Node.js', 'Chomu Level: Max'
-        required: false,
-    },
     image: {
-        type: String, // URL to Cloudinary or S3
+        type: String, 
         required: true,
     },
     githubUrl: { type: String, default: '' },
