@@ -84,13 +84,13 @@ export default function StudentAnnouncements() {
         <div className="space-y-6 animate-[fade-in-up_0.5s_ease-out]">
 
             {/* Header */}
-            <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center gap-4">
-                <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-100 flex-shrink-0">
+            <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center gap-4 dark:bg-slate-900 dark:border-slate-700">
+                <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-100 flex-shrink-0 dark:bg-amber-900/30 dark:border-amber-800/50">
                     <Megaphone className="text-amber-500 w-5 h-5" />
                 </div>
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900">Announcements</h1>
-                    <p className="text-slate-500 text-sm">Filtered for your branch &amp; program &mdash; <span className="font-semibold text-slate-600">{announcements.length} total</span></p>
+                    <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Announcements</h1>
+                    <p className="text-slate-500 text-sm dark:text-slate-400">Filtered for your branch &amp; program &mdash; <span className="font-semibold text-slate-600 dark:text-slate-300">{announcements.length} total</span></p>
                 </div>
             </div>
 
@@ -103,7 +103,7 @@ export default function StudentAnnouncements() {
                         placeholder="Search by title or content..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
+                        className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:ring-blue-700/40 dark:focus:border-blue-600"
                     />
                 </div>
                 <div className="flex gap-2 flex-wrap items-center">
@@ -145,12 +145,12 @@ export default function StudentAnnouncements() {
                         return (
                             <div
                                 key={id}
-                                className={`bg-white rounded-2xl border overflow-hidden shadow-[0_2px_10px_-6px_rgba(0,0,0,0.08)] transition-all duration-300
+                                className={`bg-white rounded-2xl border overflow-hidden shadow-[0_2px_10px_-6px_rgba(0,0,0,0.08)] transition-all duration-300 dark:bg-slate-900
                                     ${isExpanded
-                                        ? 'border-blue-200 shadow-[0_4px_20px_-4px_rgba(59,130,246,0.15)]'
+                                        ? 'border-blue-200 shadow-[0_4px_20px_-4px_rgba(59,130,246,0.15)] dark:border-blue-700'
                                         : isViewed
-                                            ? 'border-slate-100 opacity-70'
-                                            : 'border-slate-100 hover:border-blue-100 hover:shadow-md'
+                                            ? 'border-slate-100 opacity-70 dark:border-slate-700'
+                                            : 'border-slate-100 hover:border-blue-100 hover:shadow-md dark:border-slate-700 dark:hover:border-blue-800'
                                     }`}
                             >
                                 {/* Clickable Header Row */}
@@ -171,7 +171,7 @@ export default function StudentAnnouncements() {
                                                 <span className="text-xs text-slate-400 font-medium">· Viewed</span>
                                             )}
                                         </div>
-                                        <h3 className={`font-bold text-sm leading-snug group-hover:text-blue-700 transition-colors ${isViewed && !isExpanded ? 'text-slate-500' : 'text-slate-900'}`}>
+                                        <h3 className={`font-bold text-sm leading-snug group-hover:text-blue-700 transition-colors ${isViewed && !isExpanded ? 'text-slate-500 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                                             {a.title}
                                         </h3>
                                         {!isExpanded && (
@@ -194,9 +194,9 @@ export default function StudentAnnouncements() {
                                 {/* Expanded Detail Panel */}
                                 {isExpanded && (
                                     <div className="px-5 pb-5 border-t border-slate-100">
-                                        <div className="mt-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Details</h4>
-                                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{body}</p>
+                                        <div className="mt-4 bg-slate-50 rounded-xl p-4 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 dark:text-slate-400">Details</h4>
+                                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap dark:text-slate-300">{body}</p>
                                         </div>
                                         <div className="mt-3 flex flex-wrap gap-3">
                                             {a.targetBranches?.length > 0 && (

@@ -90,7 +90,7 @@ export default function MyResumes() {
     }
 
     if (!profile) {
-        return <div className="text-red-500 min-h-[50vh] flex items-center justify-center">Profile data could not be loaded.</div>;
+        return <div className="text-red-500 min-h-[50vh] flex items-center justify-center dark:text-red-300">Profile data could not be loaded.</div>;
     }
 
     const isVerified = profile.verificationStatus === 'verified';
@@ -103,19 +103,19 @@ export default function MyResumes() {
             <div className="w-full lg:w-8/12 space-y-6">
 
                 {/* Header */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between dark:bg-slate-900/90 dark:border-slate-700">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800">My Resumes</h1>
-                        <p className="text-slate-500 mt-1">Manage your active resume for placement and internship drives.</p>
+                        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">My Resumes</h1>
+                        <p className="text-slate-500 mt-1 dark:text-slate-300">Manage your active resume for placement and internship drives.</p>
                     </div>
-                    <div className="hidden sm:flex w-12 h-12 bg-blue-50 rounded-full items-center justify-center text-blue-600">
+                    <div className="hidden sm:flex w-12 h-12 bg-blue-50 rounded-full items-center justify-center text-blue-600 dark:bg-blue-950/50 dark:text-blue-300">
                         <FileText size={24} />
                     </div>
                 </div>
 
                 {!isVerified && (
-                    <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-xl flex items-start gap-4">
-                        <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0" />
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-4 rounded-xl flex items-start gap-4 dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-200">
+                        <ShieldAlert className="w-6 h-6 text-amber-600 shrink-0 dark:text-amber-300" />
                         <div>
                             <h3 className="font-semibold">Account Pending Verification</h3>
                             <p className="text-sm mt-1">
@@ -126,70 +126,70 @@ export default function MyResumes() {
                     </div>
                 )}
 
-                {message && <div className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> {message}</div>}
-                {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200">{error}</div>}
+                {message && <div className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center gap-2 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900"><CheckCircle2 className="w-5 h-5" /> {message}</div>}
+                {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-900">{error}</div>}
 
                 {/* Status Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-slate-900/90 dark:border-slate-700">
+                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 dark:text-slate-100">
                         <CheckCircle2 className={`w-5 h-5 ${hasResume ? 'text-green-500' : 'text-slate-300'}`} />
                         Current Active Resume
                     </h2>
 
                     {hasResume ? (
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-slate-50 border border-slate-200 rounded-xl dark:bg-slate-800/80 dark:border-slate-700">
                             <div className="flex items-center gap-4 mb-4 sm:mb-0">
-                                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0 dark:bg-blue-950/40 dark:text-blue-300">
                                     <FileText size={24} />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-800">{profile.fullName}_Resume.pdf</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">Uploaded securely via Cloudinary</p>
+                                    <p className="font-semibold text-slate-800 dark:text-slate-100">{profile.fullName}_Resume.pdf</p>
+                                    <p className="text-xs text-slate-500 mt-0.5 dark:text-slate-400">Uploaded securely via Cloudinary</p>
                                 </div>
                             </div>
                             <a
                                 href={profile.resumeLink}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-blue-600 px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-blue-600 px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm dark:bg-slate-900 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-blue-300"
                             >
                                 <ExternalLink size={18} />
                                 View Resume
                             </a>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-8 px-4 bg-slate-50 border border-slate-100 border-dashed rounded-xl">
-                            <FileText className="w-12 h-12 text-slate-300 mb-3" />
-                            <p className="text-slate-500 font-medium text-center">No resume uploaded yet.</p>
-                            <p className="text-xs text-slate-400 mt-1 text-center">Upload one below to make it available to recruiters.</p>
+                        <div className="flex flex-col items-center justify-center py-8 px-4 bg-slate-50 border border-slate-100 border-dashed rounded-xl dark:bg-slate-800/70 dark:border-slate-700">
+                            <FileText className="w-12 h-12 text-slate-300 mb-3 dark:text-slate-500" />
+                            <p className="text-slate-500 font-medium text-center dark:text-slate-300">No resume uploaded yet.</p>
+                            <p className="text-xs text-slate-400 mt-1 text-center dark:text-slate-400">Upload one below to make it available to recruiters.</p>
                         </div>
                     )}
                 </div>
 
                 {/* Upload Area */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <h2 className="text-lg font-bold text-slate-800 mb-4">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-slate-900/90 dark:border-slate-700">
+                    <h2 className="text-lg font-bold text-slate-800 mb-4 dark:text-slate-100">
                         {hasResume ? 'Replace Resume' : 'Upload Resume'}
                     </h2>
 
                     <form onSubmit={handleUpload}>
-                        <div className={`flex justify-center px-6 pt-8 pb-10 border-2 border-dashed rounded-xl transition-colors ${!isVerified ? 'bg-slate-50 border-slate-200 opacity-70' : 'border-blue-200 hover:border-blue-400 bg-blue-50/20'}`}>
+                        <div className={`flex justify-center px-6 pt-8 pb-10 border-2 border-dashed rounded-xl transition-colors ${!isVerified ? 'bg-slate-50 border-slate-200 opacity-70 dark:bg-slate-800/50 dark:border-slate-700' : 'border-blue-200 hover:border-blue-400 bg-blue-50/20 dark:border-blue-800 dark:hover:border-blue-600 dark:bg-blue-950/20'}`}>
                             <div className="space-y-2 text-center flex flex-col items-center w-full">
                                 <UploadCloud className={`mx-auto h-12 w-12 ${!isVerified ? 'text-slate-400' : 'text-blue-500'}`} />
-                                <div className="flex flex-col sm:flex-row items-center text-sm text-slate-600 gap-1.5 mt-2">
+                                <div className="flex flex-col sm:flex-row items-center text-sm text-slate-600 gap-1.5 mt-2 dark:text-slate-300">
                                     <label htmlFor="resume-upload" className={`relative cursor-pointer rounded-md font-semibold focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 ${!isVerified ? 'text-slate-500 pointer-events-none' : 'text-blue-600 hover:text-blue-700'}`}>
-                                        <span className="bg-white px-3 py-1 border border-blue-200 rounded-lg shadow-sm">Browse Files</span>
+                                        <span className="bg-white px-3 py-1 border border-blue-200 rounded-lg shadow-sm dark:bg-slate-900 dark:border-blue-800 dark:text-blue-300">Browse Files</span>
                                         <input id="resume-upload" name="resume" type="file" className="sr-only" onChange={handleFileChange} disabled={!isVerified} accept=".pdf,.doc,.docx" />
                                     </label>
-                                    <p className="text-slate-500 mt-2 sm:mt-0">or drag and drop here</p>
+                                    <p className="text-slate-500 mt-2 sm:mt-0 dark:text-slate-400">or drag and drop here</p>
                                 </div>
-                                <p className="text-xs text-slate-500 font-medium pt-2">Accepts PDF, DOC, DOCX up to 5MB</p>
+                                <p className="text-xs text-slate-500 font-medium pt-2 dark:text-slate-400">Accepts PDF, DOC, DOCX up to 5MB</p>
 
                                 {resumeFile && (
-                                    <div className="mt-6 w-full max-w-sm p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
+                                    <div className="mt-6 w-full max-w-sm p-4 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between dark:bg-blue-950/30 dark:border-blue-900">
                                         <div className="flex flex-col items-start truncate overflow-hidden">
-                                            <span className="text-sm font-semibold text-slate-800 truncate w-full text-left">{resumeFile.name}</span>
-                                            <span className="text-xs text-slate-500">{(resumeFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                                            <span className="text-sm font-semibold text-slate-800 truncate w-full text-left dark:text-slate-100">{resumeFile.name}</span>
+                                            <span className="text-xs text-slate-500 dark:text-slate-400">{(resumeFile.size / 1024 / 1024).toFixed(2)} MB</span>
                                         </div>
                                     </div>
                                 )}
@@ -201,8 +201,8 @@ export default function MyResumes() {
                                 type="submit"
                                 disabled={!isVerified || !resumeFile || uploading}
                                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all shadow-sm ${!isVerified || !resumeFile || uploading
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-[0.98]'
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-[0.98] dark:bg-blue-500 dark:hover:bg-blue-400'
                                     }`}
                             >
                                 {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
@@ -216,8 +216,8 @@ export default function MyResumes() {
 
             {/* Column 2: Helper Links & Resources (30% width on large screens) */}
             <div className="w-full lg:w-4/12 space-y-6">
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-24">
-                    <div className="bg-blue-600 p-5">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-24 dark:bg-slate-900/90 dark:border-slate-700">
+                    <div className="bg-blue-600 p-5 dark:bg-slate-900 dark:border-b dark:border-slate-800">
                         <h3 className="font-bold text-white text-lg">TPC Resume Resources</h3>
                         <p className="text-blue-100 text-sm mt-1">Tools and guides to help you stand out to top recruiters.</p>
                     </div>
@@ -226,22 +226,26 @@ export default function MyResumes() {
                         <ResourceLink
                             title="Standard IITP Resume Templates"
                             description="Download official Word & LaTeX formats."
-                            url="#"
+                            url="https://www.overleaf.com/read/bmgrjjsgdsmr#eabc63"
+                            difficulty="easy"
                         />
                         <ResourceLink
                             title="Action Verbs Guide"
                             description="A curated list of strong verbs to start your bullet points."
                             url="#"
+                            difficulty="medium"
                         />
                         <ResourceLink
                             title="Check your ATS Score"
                             description="Test how easily readable your PDF is by automated parsers."
-                            url="#"
+                            url="https://resumeworded.com/score"
+                            difficulty="hard"
                         />
                         <ResourceLink
                             title="Placement Guidelines"
                             description="Read the official TPC policies for the current session."
                             url="#"
+                            difficulty="medium"
                         />
                     </div>
                 </div>
@@ -252,21 +256,31 @@ export default function MyResumes() {
 }
 
 // Helper component for side links
-const ResourceLink = ({ title, description, url }) => {
+const ResourceLink = ({ title, description, url, difficulty = 'medium' }) => {
+    const isExternal = /^https?:\/\//i.test(url);
+    const difficultyLabel = {
+        easy: 'Easy',
+        medium: 'Medium',
+        hard: 'Hard',
+    }[difficulty] || 'Medium';
+
     return (
         <a
             href={url}
-            className="flex items-start gap-3 p-4 hover:bg-slate-50 rounded-xl transition-colors group border-b border-transparent hover:border-slate-100"
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noreferrer noopener" : undefined}
+            className="flex items-start gap-3 p-4 hover:bg-slate-50 rounded-xl transition-colors group border-b border-transparent hover:border-slate-100 dark:hover:bg-slate-800/70 dark:hover:border-slate-700"
         >
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0 mt-0.5">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0 mt-0.5 dark:bg-slate-800 dark:text-blue-300 dark:group-hover:bg-blue-500 dark:group-hover:text-slate-950">
                 <FileText size={18} />
             </div>
             <div>
-                <h4 className="font-semibold text-slate-800 text-sm group-hover:text-blue-600 transition-colors flex items-center gap-1">
+                <h4 className="font-semibold text-slate-800 text-sm group-hover:text-blue-600 transition-colors flex items-center gap-2 dark:text-slate-100 dark:group-hover:text-blue-300">
                     {title}
+                    <span className={`difficulty-chip difficulty-chip-${difficulty}`}>{difficultyLabel}</span>
                     <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0" />
                 </h4>
-                <p className="text-xs text-slate-500 mt-1">{description}</p>
+                <p className="text-xs text-slate-500 mt-1 dark:text-slate-400">{description}</p>
             </div>
         </a>
     );

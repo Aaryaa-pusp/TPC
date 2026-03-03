@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
-import { Github, Linkedin, Sparkles } from 'lucide-react';
+import { Github, Linkedin } from 'lucide-react';
 import axios from 'axios';
+import ThemeToggle from '../components/ThemeToggle';
+import logo from '../assets/logo.png';
 
 // Framer Motion Variants for Staggered Entrance
 const containerVariants = {
@@ -29,6 +31,8 @@ const itemVariants = {
     }
 };
 
+const MotionDiv = motion.div;
+
 const DeveloperCard = ({ member, index }) => {
     // Explicit organic staggered offsets as requested
     // Card 0: 0px, Card 1: 40px, Card 2: -20px 
@@ -42,17 +46,8 @@ const DeveloperCard = ({ member, index }) => {
 
     const organicOffset = getOffset(index);
 
-    // Spotlight mouse tracking effect
-    const handleMouseMove = (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
-        e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
-    };
-
     return (
-        <motion.div variants={itemVariants} className={`h-full w-full ${organicOffset}`}>
+        <MotionDiv variants={itemVariants} className={`w-full ${organicOffset}`}>
             <Tilt
                 tiltMaxAngleX={10}
                 tiltMaxAngleY={10}
@@ -64,82 +59,53 @@ const DeveloperCard = ({ member, index }) => {
                 glareMaxOpacity={0.15}
                 glareColor="#ffffff"
                 glarePosition="bottom"
-                className="h-full rounded-[2rem]"
+                className="w-full rounded-[2rem]"
             >
-                <div
-                    onMouseMove={handleMouseMove}
-                    className="relative h-full flex flex-col items-center px-6 py-10 rounded-[2rem] bg-white border border-gray-200 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.15)] hover:border-blue-400 transition-all duration-500 group overflow-hidden"
-                >
-                    {/* Spotlight Glow Tracking (Interactive Mouse Effect) */}
+                <div className="moving-border-card relative w-full min-h-[360px] rounded-[2rem] p-[2px] overflow-hidden group shadow-[0_0_36px_-16px_rgba(14,165,233,0.45)] dark:shadow-[0_0_44px_-16px_rgba(34,211,238,0.6)]">
                     <div
-                        className="pointer-events-none absolute -inset-px rounded-[2rem] opacity-0 group-hover:opacity-100 transition duration-300 z-0"
-                        style={{
-                            background: `radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(59, 130, 246, 0.08), transparent 40%)`
-                        }}
-                    />
-
-                    {/* Subtle Glow State (Hover) */}
-                    <div className="absolute inset-0 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"
-                        style={{ boxShadow: 'inset 0 0 20px rgba(59, 130, 246, 0.05)' }}
-                    />
-
-                    {/* Subtly animated Shikhar Legend Badge inside the dark card */}
-                    {member.name.includes("Shikhar") && (
-                        <div className="absolute top-5 right-5 z-20">
-                            <div className="relative p-[1.5px] rounded-full overflow-hidden flex shadow-sm">
-                                <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_340deg,rgba(0,0,0,0.1)_360deg)] animate-[spin_3s_linear_infinite]"
-                                    style={{ backgroundImage: 'conic-gradient(from 0deg, #fcd34d, #f59e0b, #fbbf24, #fcd34d)' }}
-                                />
-                                <div className="bg-white px-3 py-1 rounded-full flex items-center gap-1.5 relative z-10 border border-yellow-100">
-                                    <Sparkles size={14} className="text-yellow-500 animate-pulse" />
-                                    <span className="text-xs font-serif font-bold text-yellow-600 tracking-wide">Legend</span>
-                                </div>
-                            </div>
+                        className="relative w-full min-h-[356px] flex flex-col items-center px-5 py-8 pb-20 rounded-[1.9rem] bg-white/95 border border-blue-100 shadow-[0_20px_54px_-22px_rgba(14,165,233,0.48)] hover:shadow-[0_24px_62px_-20px_rgba(14,165,233,0.56)] transition-all duration-500 overflow-hidden dark:bg-slate-900/95 dark:border-cyan-900/80 dark:shadow-[0_22px_58px_-22px_rgba(34,211,238,0.44)] dark:hover:shadow-[0_28px_66px_-20px_rgba(34,211,238,0.58)]"
+                    >
+                        {/* Profile Image */}
+                        <div className="relative w-28 h-28 mb-5 z-10">
+                            <img
+                                src={member.image}
+                                alt={member.name}
+                                className="w-full h-full rounded-full object-cover shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] relative z-10 bg-slate-100 border border-gray-100 dark:border-slate-700 dark:bg-slate-800"
+                            />
                         </div>
-                    )}
 
-                    {/* Profile Image */}
-                    <div className="relative w-32 h-32 mb-6 z-10">
-                        <div className="absolute inset-0 rounded-full border border-blue-400 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 ease-out z-0" />
-                        <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-full h-full rounded-full object-cover shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] relative z-10 bg-slate-100 border border-gray-100"
-                        />
+                        {/* Typography - Light Formal Theme */}
+                        <div className="text-center z-10 relative mb-6 flex-grow">
+                            <h3 className="text-xl font-bold font-sans text-gray-900 tracking-tight mb-1 dark:text-slate-100">
+                                {member.name}
+                            </h3>
+                            <p className="text-sm font-medium text-gray-500 mb-3 dark:text-slate-400">
+                                {member.role}
+                            </p>
+                            <span className="text-xs text-blue-600 font-medium bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full inline-block dark:bg-cyan-950/50 dark:border-cyan-800 dark:text-cyan-200">
+                                {member.specialTag}
+                            </span>
+                        </div>
+
+                        {/* Floating Social Slide-Up on Hover */}
+                        <div className="absolute bottom-6 flex gap-4 opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out z-20">
+                            <a
+                                href={member.githubUrl}
+                                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-white hover:bg-gray-900 hover:border-gray-900 hover:-translate-y-1 shadow-md transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                            >
+                                <Github size={18} />
+                            </a>
+                            <a
+                                href={member.linkedinUrl}
+                                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#0A66C2] hover:border-[#0A66C2] hover:-translate-y-1 shadow-md transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
+                            >
+                                <Linkedin size={18} />
+                            </a>
+                        </div>
                     </div>
-
-                    {/* Typography - Light Formal Theme */}
-                    <div className="text-center z-10 relative mb-8 flex-grow">
-                        <h3 className="text-2xl font-bold font-sans text-gray-900 tracking-tight mb-1">
-                            {member.name}
-                        </h3>
-                        <p className="text-sm font-medium text-gray-500 mb-3">
-                            {member.role}
-                        </p>
-                        <span className="text-xs text-blue-600 font-medium bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-full inline-block">
-                            {member.specialTag}
-                        </span>
-                    </div>
-
-                    {/* Floating Social Slide-Up on Hover */}
-                    <div className="absolute bottom-6 flex gap-4 opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out z-20">
-                        <a
-                            href={member.githubUrl}
-                            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-white hover:bg-gray-900 hover:border-gray-900 hover:-translate-y-1 shadow-md transition-all"
-                        >
-                            <Github size={18} />
-                        </a>
-                        <a
-                            href={member.linkedinUrl}
-                            className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-white hover:bg-[#0A66C2] hover:border-[#0A66C2] hover:-translate-y-1 shadow-md transition-all"
-                        >
-                            <Linkedin size={18} />
-                        </a>
-                    </div>
-
                 </div>
             </Tilt>
-        </motion.div>
+        </MotionDiv>
     );
 };
 
@@ -163,38 +129,42 @@ export default function DevelopersPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center">
+            <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center dark:bg-slate-950">
                 <div className="w-16 h-16 border-4 border-gray-200 border-t-cyan-500 rounded-full animate-spin"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FFFFFF] font-sans pb-32 overflow-hidden relative">
+        <div className="min-h-screen bg-[#FFFFFF] font-sans pb-32 overflow-hidden relative dark:bg-slate-950">
 
             {/* Navbar */}
-            <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 transition-all duration-300">
+            <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 transition-all duration-300 dark:bg-slate-950/85 dark:border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
                         <Link to="/" className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                                IITP
+                            <div className="w-14 h-14 bg-white rounded-xl p-1.5 flex items-center justify-center shadow-sm ring-1 ring-blue-100 dark:bg-slate-900 dark:ring-slate-700">
+                                <img src={logo} alt="IIT Patna logo" className="w-full h-full object-contain" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-xl font-bold text-gray-900 tracking-tight">Training & Placement</span>
+                                <span className="text-xl font-bold text-gray-900 tracking-tight dark:text-slate-100">Training &amp; Placement</span>
                                 <span className="text-sm font-medium text-blue-600">IIT Patna</span>
                             </div>
                         </Link>
                         <div className="hidden md:flex items-center space-x-8">
-                            <Link to="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</Link>
-                            <Link to="/#stats" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Statistics</Link>
-                            <Link to="/#contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact</Link>
+                            <Link to="/" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Home</Link>
                             <Link to="/developers" className="text-blue-600 font-medium transition-colors">Developers</Link>
-                            <div className="h-6 w-px bg-gray-200"></div>
+                            <Link to="/#stats" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Statistics</Link>
+                            <Link to="/#contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Contact</Link>
+                            <div className="h-6 w-px bg-gray-200 dark:bg-slate-700"></div>
+                            <ThemeToggle />
                             <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Log in</Link>
                             <Link to="/login" className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                                 Portal Access
                             </Link>
+                        </div>
+                        <div className="md:hidden">
+                            <ThemeToggle />
                         </div>
                     </div>
                 </div>
@@ -203,35 +173,35 @@ export default function DevelopersPage() {
             <div className="pt-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 {/* Header Setup */}
-                <motion.div
+                <MotionDiv
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                     className="text-center mb-32"
                 >
-                    <div className="inline-block px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 font-bold tracking-widest uppercase text-xs mb-8">
+                    <div className="inline-block px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 font-bold tracking-widest uppercase text-xs mb-8 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
                         The Core Team
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-serif text-gray-900 tracking-tight mb-6">
+                    <h1 className="text-5xl md:text-6xl font-serif text-gray-900 tracking-tight mb-6 dark:text-slate-100">
                         Meet the Developers
                     </h1>
-                    <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+                    <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed dark:text-slate-400">
                         The engineering minds and designers forging the premier digital recruitment platform for the Indian Institute of Technology Patna.
                     </p>
-                </motion.div>
+                </MotionDiv>
 
                 {/* Asymmetrical Staggered Onyx Grid */}
-                <motion.div
+                <MotionDiv
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, margin: "-100px" }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16 lg:gap-y-12"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16 lg:gap-y-20"
                 >
                     {developers.map((member, index) => (
                         <DeveloperCard key={member._id || member.name} member={member} index={index} />
                     ))}
-                </motion.div>
+                </MotionDiv>
 
             </div>
         </div>

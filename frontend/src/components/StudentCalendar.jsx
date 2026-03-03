@@ -52,16 +52,16 @@ function getEventColor(event, userEmail) {
 }
 
 function getStatusLabel(event, userEmail) {
-    if (event.type === 'announcement') return { text: 'Announcement', bg: 'bg-amber-100 text-amber-800' };
+    if (event.type === 'announcement') return { text: 'Announcement', bg: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' };
     const now = new Date();
     const endDate = new Date(event.rawEnd);
     const startDate = new Date(event.rawStart);
     const applied = event.appliedStudents?.includes(userEmail);
 
-    if (applied) return { text: '✓ Applied', bg: 'bg-green-100 text-green-800' };
-    if (endDate < now) return { text: 'Ended', bg: 'bg-gray-100 text-gray-600' };
-    if (startDate <= now && now <= endDate) return { text: 'Active Now', bg: 'bg-emerald-100 text-emerald-800' };
-    return { text: 'Upcoming', bg: 'bg-blue-100 text-blue-800' };
+    if (applied) return { text: '✓ Applied', bg: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' };
+    if (endDate < now) return { text: 'Ended', bg: 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400' };
+    if (startDate <= now && now <= endDate) return { text: 'Active Now', bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' };
+    return { text: 'Upcoming', bg: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' };
 }
 
 // ─── Main Component ───────────────────────────────────────────────────
@@ -229,7 +229,7 @@ const StudentCalendar = () => {
         <div className="h-[calc(100vh-110px)]">
             {/* Legend Bar */}
             <div className="flex items-center gap-4 mb-4 flex-wrap px-1">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Legend:</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-300">Legend:</span>
                 {[
                     { color: COLORS.APPLIED, label: 'Applied' },
                     { color: COLORS.ACTIVE, label: 'Active' },
@@ -239,7 +239,7 @@ const StudentCalendar = () => {
                 ].map(item => (
                     <div key={item.label} className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
-                        <span className="text-xs text-slate-600 font-medium">{item.label}</span>
+                        <span className="text-xs text-slate-600 font-medium dark:text-slate-300">{item.label}</span>
                     </div>
                 ))}
             </div>
@@ -249,8 +249,65 @@ const StudentCalendar = () => {
                 <motion.div
                     animate={{ width: selectedEvent ? '68%' : '100%' }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    className="h-full p-4 bg-white"
+                    className="calendar-color-lock student-calendar-surface h-full p-4 bg-white"
+                    style={{ colorScheme: 'light' }}
                 >
+                    <style>{`
+                        /* Force light-theme for every internal rbc element —
+                           overrides the global color-scheme:dark cascade */
+                        .student-calendar-surface,
+                        .student-calendar-surface .rbc-calendar,
+                        .student-calendar-surface .rbc-month-view,
+                        .student-calendar-surface .rbc-month-row,
+                        .student-calendar-surface .rbc-row-bg,
+                        .student-calendar-surface .rbc-day-bg,
+                        .student-calendar-surface .rbc-row-content,
+                        .student-calendar-surface .rbc-month-header,
+                        .student-calendar-surface .rbc-header {
+                            background-color: #ffffff !important;
+                            border-color: #e2e8f0 !important;
+                        }
+                        .student-calendar-surface .rbc-off-range-bg {
+                            background-color: #f8fafc !important;
+                        }
+                        .student-calendar-surface .rbc-today {
+                            background-color: #eff6ff !important;
+                        }
+                        .student-calendar-surface .rbc-toolbar button {
+                            color: #374151 !important;
+                            background-color: #ffffff !important;
+                            border-color: #d1d5db !important;
+                        }
+                        .student-calendar-surface .rbc-toolbar button:hover,
+                        .student-calendar-surface .rbc-toolbar button.rbc-active {
+                            background-color: #f1f5f9 !important;
+                            color: #1e293b !important;
+                        }
+                        .student-calendar-surface .rbc-toolbar .rbc-toolbar-label {
+                            color: #1e293b;
+                            font-weight: 700;
+                        }
+                        .student-calendar-surface .rbc-header {
+                            color: #334155;
+                            font-weight: 700;
+                        }
+                        .student-calendar-surface .rbc-date-cell .rbc-button-link,
+                        .student-calendar-surface .rbc-date-cell button,
+                        .student-calendar-surface .rbc-date-cell a {
+                            color: #334155 !important;
+                            font-weight: 600;
+                            opacity: 1;
+                        }
+                        .student-calendar-surface .rbc-off-range .rbc-button-link,
+                        .student-calendar-surface .rbc-off-range .rbc-date-cell button,
+                        .student-calendar-surface .rbc-off-range .rbc-date-cell a {
+                            color: #64748b !important;
+                            opacity: 0.95;
+                        }
+                        .student-calendar-surface .rbc-show-more {
+                            color: #3b82f6 !important;
+                        }
+                    `}</style>
                     <Calendar
                         localizer={localizer}
                         events={events}
@@ -274,12 +331,12 @@ const StudentCalendar = () => {
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: '100%', opacity: 0 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                            className="absolute right-0 top-0 w-[32%] h-full bg-white shadow-2xl border-l border-gray-200 overflow-y-auto"
+                            className="absolute right-0 top-0 w-[32%] h-full bg-white shadow-2xl border-l border-gray-200 overflow-y-auto dark:bg-slate-900 dark:border-slate-700"
                         >
                             {/* Header */}
-                            <div className="sticky top-0 bg-white z-10 p-5 pb-3 border-b border-slate-100">
+                            <div className="sticky top-0 bg-white z-10 p-5 pb-3 border-b border-slate-100 dark:bg-slate-900 dark:border-slate-700">
                                 <div className="flex justify-between items-start">
-                                    <div className="flex items-center space-x-2 text-slate-500">
+                                    <div className="flex items-center space-x-2 text-slate-500 dark:text-slate-300">
                                         {getEventIcon(selectedEvent.type)}
                                         <span className="font-semibold uppercase text-xs tracking-wider">
                                             {selectedEvent.type.replace('_', ' ')}
@@ -287,7 +344,7 @@ const StudentCalendar = () => {
                                     </div>
                                     <button
                                         onClick={closeDrawer}
-                                        className="p-1.5 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                                        className="p-1.5 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600 dark:hover:bg-slate-800 dark:text-slate-500 dark:hover:text-slate-300"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -298,7 +355,7 @@ const StudentCalendar = () => {
                             <div className="p-5 space-y-5">
                                 {/* Title + Status Badge */}
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900 leading-tight mb-2">
+                                    <h2 className="text-xl font-bold text-gray-900 leading-tight mb-2 dark:text-slate-100">
                                         {selectedEvent.title}
                                     </h2>
                                     {(() => {
@@ -313,16 +370,16 @@ const StudentCalendar = () => {
 
                                 {/* Dates */}
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                                        <CalendarIcon className="w-4 h-4 text-slate-400" />
+                                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                        <CalendarIcon className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                                         <div>
                                             <span className="font-medium">Start:</span>{' '}
                                             {format(new Date(selectedEvent.rawStart), 'PPP')}
                                         </div>
                                     </div>
                                     {selectedEvent.rawEnd && selectedEvent.rawEnd !== selectedEvent.rawStart && (
-                                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                                            <Clock className="w-4 h-4 text-slate-400" />
+                                        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                            <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                                             <div>
                                                 <span className="font-medium">End:</span>{' '}
                                                 {format(new Date(selectedEvent.rawEnd), 'PPP')}
@@ -330,7 +387,7 @@ const StudentCalendar = () => {
                                         </div>
                                     )}
                                     {selectedEvent.extendedProps?.deadline && (
-                                        <div className="mt-2 p-2.5 bg-red-50 text-red-700 rounded-lg text-xs border border-red-100 font-medium">
+                                        <div className="mt-2 p-2.5 bg-red-50 text-red-700 rounded-lg text-xs border border-red-100 font-medium dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60">
                                             ⏰ Deadline: {format(new Date(selectedEvent.extendedProps.deadline), 'PPP')}
                                         </div>
                                     )}
@@ -338,8 +395,8 @@ const StudentCalendar = () => {
 
                                 {/* Description */}
                                 <div>
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Description</h3>
-                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 dark:text-slate-500">Description</h3>
+                                    <p className="text-sm text-slate-600 leading-relaxed dark:text-slate-300">
                                         {selectedEvent.extendedProps?.description || selectedEvent.extendedProps?.content || 'No description provided.'}
                                     </p>
                                 </div>
@@ -347,10 +404,10 @@ const StudentCalendar = () => {
                                 {/* Target Branches */}
                                 {selectedEvent.extendedProps?.targetBranches?.length > 0 && (
                                     <div>
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Target Branches</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 dark:text-slate-500">Target Branches</h3>
                                         <div className="flex flex-wrap gap-1.5">
                                             {selectedEvent.extendedProps.targetBranches.map((branch, i) => (
-                                                <span key={i} className="bg-slate-100 text-slate-700 text-xs font-medium px-2 py-0.5 rounded-full border border-slate-200">
+                                                <span key={i} className="bg-slate-100 text-slate-700 text-xs font-medium px-2 py-0.5 rounded-full border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">
                                                     {branch}
                                                 </span>
                                             ))}
@@ -361,7 +418,7 @@ const StudentCalendar = () => {
                                 {/* Links */}
                                 {selectedEvent.extendedProps?.links?.length > 0 && (
                                     <div>
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Links</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 dark:text-slate-500">Links</h3>
                                         <div className="space-y-1.5">
                                             {selectedEvent.extendedProps.links.map((link, i) => (
                                                 <a
@@ -381,15 +438,15 @@ const StudentCalendar = () => {
 
                                 {/* ─── Apply CTA ─── */}
                                 {selectedEvent.type !== 'announcement' && (
-                                    <div className="pt-3 border-t border-slate-100">
+                                    <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
                                         {hasApplied || applySuccess[selectedEvent.id] ? (
-                                            <div className="flex items-center gap-2 bg-green-50 text-green-700 p-3.5 rounded-xl border border-green-200">
-                                                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                            <div className="flex items-center gap-2 bg-green-50 text-green-700 p-3.5 rounded-xl border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/60">
+                                                <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" />
                                                 <span className="font-semibold text-sm">Application Recorded</span>
                                             </div>
                                         ) : isEventActionable ? (
                                             <div className="space-y-3">
-                                                <p className="text-sm text-slate-600 font-medium">
+                                                <p className="text-sm text-slate-600 font-medium dark:text-slate-300">
                                                     Have you applied to this opportunity?
                                                 </p>
                                                 <button
@@ -411,7 +468,7 @@ const StudentCalendar = () => {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="bg-gray-50 text-gray-500 p-3.5 rounded-xl border border-gray-200 text-sm text-center">
+                                            <div className="bg-gray-50 text-gray-500 p-3.5 rounded-xl border border-gray-200 text-sm text-center dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
                                                 This event has ended.
                                             </div>
                                         )}
