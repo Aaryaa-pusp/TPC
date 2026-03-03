@@ -6,7 +6,12 @@ const listeners = new Set();
 
 const getPreferredTheme = () => {
     if (typeof window === 'undefined') return DEFAULT_THEME;
-    const stored = localStorage.getItem(THEME_KEY);
+    let stored = null;
+    try {
+        stored = localStorage.getItem(THEME_KEY);
+    } catch {
+        stored = null;
+    }
     if (stored === 'light' || stored === 'dark') return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
@@ -14,12 +19,17 @@ const getPreferredTheme = () => {
 const applyTheme = (theme) => {
     if (typeof document === 'undefined') return;
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.style.colorScheme = theme;
 };
 
 let currentTheme = getPreferredTheme();
 if (typeof window !== 'undefined') {
     applyTheme(currentTheme);
-    localStorage.setItem(THEME_KEY, currentTheme);
+    try {
+        localStorage.setItem(THEME_KEY, currentTheme);
+    } catch {
+        // Ignore storage issues (private mode, disabled storage, etc).
+    }
 }
 
 const emit = () => {
@@ -32,7 +42,11 @@ const setGlobalTheme = (nextTheme) => {
     currentTheme = nextTheme;
     applyTheme(currentTheme);
     if (typeof window !== 'undefined') {
-        localStorage.setItem(THEME_KEY, currentTheme);
+        try {
+            localStorage.setItem(THEME_KEY, currentTheme);
+        } catch {
+            // Ignore storage issues (private mode, disabled storage, etc).
+        }
     }
     emit();
 };

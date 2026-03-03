@@ -226,7 +226,7 @@ export default function MyResumes() {
                         <ResourceLink
                             title="Standard IITP Resume Templates"
                             description="Download official Word & LaTeX formats."
-                            url="#"
+                            url="https://www.overleaf.com/read/bmgrjjsgdsmr#eabc63"
                         />
                         <ResourceLink
                             title="Action Verbs Guide"
@@ -236,7 +236,7 @@ export default function MyResumes() {
                         <ResourceLink
                             title="Check your ATS Score"
                             description="Test how easily readable your PDF is by automated parsers."
-                            url="#"
+                            url="https://resumeworded.com/score"
                         />
                         <ResourceLink
                             title="Placement Guidelines"
@@ -253,9 +253,13 @@ export default function MyResumes() {
 
 // Helper component for side links
 const ResourceLink = ({ title, description, url }) => {
+    const isExternal = /^https?:\/\//i.test(url);
+
     return (
         <a
             href={url}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noreferrer noopener" : undefined}
             className="flex items-start gap-3 p-4 hover:bg-slate-50 rounded-xl transition-colors group border-b border-transparent hover:border-slate-100"
         >
             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0 mt-0.5">
