@@ -8,6 +8,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './StudentDashboard.css';
 import { Calendar as CalendarIcon, Megaphone, Clock, Briefcase } from 'lucide-react';
 
 const locales = {
@@ -133,26 +134,37 @@ export default function StudentDashboard() {
 
     return (
         <div className="space-y-6 animate-[fade-in-up_0.5s_ease-out]">
-            <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100">
+            <div className="flex justify-between items-center bg-white/95 p-6 rounded-2xl shadow-[0_10px_30px_-18px_rgba(15,23,42,0.45)] border border-slate-100 backdrop-blur-sm dark:bg-slate-900/90 dark:border-slate-700/70 dark:shadow-[0_14px_32px_-18px_rgba(2,6,23,0.8)]">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2 dark:text-slate-100">
                         Welcome back, {user?.name || user?.email?.split('@')[0]}
                     </h1>
-                    <p className="text-slate-500 text-sm mt-1">Here is your timeline for upcoming opportunities.</p>
+                    <p className="text-slate-500 text-sm mt-1 dark:text-slate-300">Here is your timeline for upcoming opportunities.</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Calendar Area */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col">
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-[0_12px_32px_-20px_rgba(15,23,42,0.5)] border border-slate-100 flex flex-col backdrop-blur-sm">
                     <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
                         <CalendarIcon className="text-blue-500" /> Event Calendar
                     </h2>
-                    <div className="flex-1 min-h-[500px] calendar-wrapper">
+                    <div className="flex-1 min-h-[500px] calendar-wrapper calendar-color-lock">
                         <style>{`
                             /* --- Base --- */
                             .rbc-calendar { font-family: 'Inter', sans-serif; }
-                            .rbc-header { padding: 10px; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; color: #94a3b8; border-bottom: 1px solid #f1f5f9; }
+                            .calendar-wrapper .rbc-calendar,
+                            .calendar-wrapper .rbc-month-view,
+                            .calendar-wrapper .rbc-time-view,
+                            .calendar-wrapper .rbc-time-header-content,
+                            .calendar-wrapper .rbc-time-content,
+                            .calendar-wrapper .rbc-time-gutter,
+                            .calendar-wrapper .rbc-month-row,
+                            .calendar-wrapper .rbc-row-bg,
+                            .calendar-wrapper .rbc-day-bg {
+                                background: #ffffff !important;
+                            }
+                            .rbc-header { padding: 10px; font-weight: 700; text-transform: uppercase; font-size: 0.72rem; color: #475569; border-bottom: 1px solid #e2e8f0; }
 
                             /* --- Date cell numbers as circles --- */
                             .rbc-date-cell { text-align: center; padding: 4px 0; }
@@ -165,7 +177,7 @@ export default function StudentDashboard() {
                                 border-radius: 50%;
                                 font-size: 0.82rem;
                                 font-weight: 500;
-                                color: #475569;
+                                color: #1e293b;
                                 transition: background 0.15s;
                                 text-decoration: none;
                             }
@@ -179,7 +191,7 @@ export default function StudentDashboard() {
                             .rbc-off-range-bg { background-color: #e8edf4; }
                             /* Current month cells — slightly off-white */
                             .rbc-month-view .rbc-day-bg {
-                                background-color: #f8f9fb;
+                                background-color: #ffffff;
                                 border-radius: 12px;
                             }
                             /* Today's cell */
@@ -189,10 +201,15 @@ export default function StudentDashboard() {
                             }
                             /* Prev / next month cells — noticeably darker */
                             .rbc-month-view .rbc-off-range-bg {
-                                background-color: #e4e9f0;
+                                background-color: #f3f5f8;
                                 border-radius: 12px;
                             }
-                            .rbc-off-range .rbc-date-cell a { color: #cbd5e1; }
+                            .rbc-off-range .rbc-date-cell a,
+                            .rbc-off-range .rbc-button-link,
+                            .rbc-off-range button {
+                                color: #64748b;
+                                opacity: 1;
+                            }
 
                             /* --- Events as colored dot circles in MONTH VIEW only --- */
                             .rbc-month-view .rbc-event {
@@ -208,11 +225,11 @@ export default function StudentDashboard() {
                                 gap: 5px;
                                 padding: 2px 4px;
                                 font-size: 0.72rem;
-                                font-weight: 500;
+                                font-weight: 600;
                                 white-space: nowrap;
                                 overflow: hidden;
                                 text-overflow: ellipsis;
-                                color: #334155;
+                                color: #1e293b;
                             }
                             /* Colored dot before title — month view only */
                             .rbc-month-view .rbc-event-content::before {
@@ -230,10 +247,30 @@ export default function StudentDashboard() {
                             /* --- "+N more" link --- */
                             .rbc-show-more {
                                 font-size: 0.7rem;
-                                color: #64748b;
-                                font-weight: 600;
+                                color: #1d4ed8;
+                                font-weight: 700;
                                 padding-left: 6px;
                                 background: none;
+                            }
+
+                            .calendar-wrapper .rbc-toolbar .rbc-toolbar-label {
+                                color: #0f172a !important;
+                                font-weight: 700;
+                            }
+                            .calendar-wrapper .rbc-toolbar button {
+                                color: #334155 !important;
+                                background: #ffffff !important;
+                                border-color: #cbd5e1 !important;
+                                font-weight: 600;
+                            }
+                            .calendar-wrapper .rbc-toolbar button:hover,
+                            .calendar-wrapper .rbc-toolbar button:focus-visible {
+                                color: #1e293b !important;
+                                background: #f8fafc !important;
+                            }
+                            .calendar-wrapper .rbc-toolbar button.rbc-active {
+                                background: #f1f5f9 !important;
+                                color: #0f172a !important;
                             }
 
                             /* --- Popup overlay stays as rounded rectangle pills --- */
@@ -292,17 +329,17 @@ export default function StudentDashboard() {
                 </div>
 
                 {/* Announcements / Details Sidebar */}
-                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col h-full">
+                <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col h-full dark:bg-slate-900/90 dark:border-slate-700/70 dark:shadow-[0_18px_36px_-20px_rgba(2,6,23,0.9)]">
 
                     {selectedEvent ? (
                         <>
-                            <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
-                                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                    <Briefcase className="text-indigo-500" /> Event Details
+                            <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6 dark:border-slate-700">
+                                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 dark:text-slate-100">
+                                    <Briefcase className="text-indigo-500 dark:text-indigo-300" /> Event Details
                                 </h2>
                                 <button
                                     onClick={closeDetails}
-                                    className="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-red-500"
+                                    className="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-red-500 dark:hover:bg-slate-800 dark:text-slate-500 dark:hover:text-red-300"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                                 </button>
@@ -310,19 +347,19 @@ export default function StudentDashboard() {
 
                             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
                                 <div>
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-600 mb-2">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-600 mb-2 dark:bg-slate-800 dark:text-slate-300">
                                         {selectedEvent.type ? selectedEvent.type.replace('_', ' ') : 'Event'}
                                     </span>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-2">{selectedEvent.title}</h3>
-                                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-                                        <Clock size={14} className="text-slate-400" />
+                                    <h3 className="text-xl font-bold text-slate-900 mb-2 dark:text-slate-100">{selectedEvent.title}</h3>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-4 dark:text-slate-300">
+                                        <Clock size={14} className="text-slate-400 dark:text-slate-500" />
                                         <span>{new Date(selectedEvent.start).toLocaleString()}</span>
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Description</h4>
-                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 dark:bg-slate-800/80 dark:border-slate-700">
+                                    <h4 className="font-semibold text-slate-800 text-sm mb-2 dark:text-slate-100">Description</h4>
+                                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap dark:text-slate-300">
                                         {selectedEvent.description || selectedEvent.content || "No detailed description provided."}
                                     </p>
                                 </div>
@@ -330,12 +367,12 @@ export default function StudentDashboard() {
                         </>
                     ) : (
                         <>
-                            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                                <Megaphone className="text-amber-500" /> Recent Announcements
+                            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 dark:text-slate-100 dark:border-slate-700">
+                                <Megaphone className="text-amber-500 dark:text-amber-300" /> Recent Announcements
                             </h2>
                             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar flex-1">
                                 {announcements.length === 0 ? (
-                                    <div className="text-center py-8 text-slate-400 font-medium text-sm">No new announcements for your branch.</div>
+                                    <div className="text-center py-8 text-slate-400 font-medium text-sm dark:text-slate-500">No new announcements for your branch.</div>
                                 ) : (
                                     announcements.map((a) => (
                                         <div
@@ -348,16 +385,16 @@ export default function StudentDashboard() {
                                                 type: a.type || 'announcement',
                                                 description: a.content || a.description
                                             })}
-                                            className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-blue-50 hover:border-blue-100 transition-colors group cursor-pointer"
+                                            className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-blue-50 hover:border-blue-100 transition-colors group cursor-pointer dark:border-slate-700 dark:bg-slate-800/70 dark:hover:bg-slate-800 dark:hover:border-blue-800"
                                         >
                                             <div className="flex items-start justify-between mb-2">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-white border shadow-sm group-hover:border-blue-200">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-white border shadow-sm group-hover:border-blue-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 dark:group-hover:border-blue-700">
                                                     {a.type ? a.type.replace('_', ' ') : 'Announcement'}
                                                 </span>
-                                                <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Clock size={12} />{new Date(a.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-xs text-slate-400 font-medium flex items-center gap-1 dark:text-slate-500"><Clock size={12} />{new Date(a.createdAt).toLocaleDateString()}</span>
                                             </div>
-                                            <h3 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-blue-700 transition-colors">{a.title}</h3>
-                                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{a.content || a.description}</p>
+                                            <h3 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-blue-700 transition-colors dark:text-slate-100 dark:group-hover:text-blue-300">{a.title}</h3>
+                                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed dark:text-slate-300">{a.content || a.description}</p>
                                         </div>
                                     ))
                                 )}

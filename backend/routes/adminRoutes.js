@@ -12,7 +12,11 @@ router.put('/companies/:companyId/verify', checkAdminRole(['super_admin']), admi
 router.get('/students/pending', checkAdminRole(['super_admin', 'student_admin']), adminController.getPendingStudents);
 router.put('/students/:studentId/verify', checkAdminRole(['super_admin', 'student_admin']), adminController.verifyStudentData);
 router.post('/assign-power', checkAdminRole(['super_admin', 'announcement_admin', 'student_admin']), adminController.assignAdminPower);
+
+// Events Routes
+router.get('/events', checkAdminRole(['super_admin', 'student_admin']), adminController.getEvents);
 router.post('/events', checkAdminRole(['super_admin', 'student_admin']), adminController.createEvent);
+router.delete('/events/:id', checkAdminRole(['super_admin', 'student_admin']), adminController.deleteEvent);
 
 // Announcements Routes
 router.get('/announcements', checkAdminRole(['super_admin', 'announcement_admin']), adminController.getAnnouncements);

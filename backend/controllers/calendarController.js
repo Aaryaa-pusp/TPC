@@ -3,11 +3,8 @@ const Announcement = require('../models/Announcement');
 
 exports.getUnifiedCalendar = async (req, res) => {
     try {
-        // If student is logged in, their data is in req.user
-        // Or we can accept branch from query. We'll use query for flexibility, fallback to req.user if present
         let userBranch = req.query.branch;
 
-        // As a fallback, if req.user has a department/branch, use that
         if (!userBranch && req.user && req.user.department) {
             userBranch = req.user.department;
         }
@@ -25,28 +22,29 @@ exports.getUnifiedCalendar = async (req, res) => {
         const calendarItems = [];
 
         events.forEach(event => {
-            let color = '#3b82f6'; // Blue for internships/events
-            if (event.type === 'placement_drive') {
-                color = '#8b5cf6'; // Purple for placements
-            } else if (event.type === 'workshop') {
-                color = '#10b981'; // Emerald/Green for workshops
-            }
-
+            const eventObj = event.toObject();
             calendarItems.push({
+                id: eventObj._id,
                 title: event.title,
-                start: event.date ? new Date(event.date).toISOString() : null,
+                start: event.startDate ? new Date(event.startDate).toISOString() : (event.date ? new Date(event.date).toISOString() : null),
+                end: event.endDate ? new Date(event.endDate).toISOString() : (event.startDate ? new Date(event.startDate).toISOString() : null),
                 type: event.type,
-                color: color,
-                extendedProps: event.toObject()
+                appliedStudents: event.appliedStudents || [],
+                extendedProps: {
+                    ...eventObj,
+                    links: event.links || [],
+                }
             });
         });
 
         announcements.forEach(ann => {
             calendarItems.push({
+                id: ann._id,
                 title: ann.title,
                 start: ann.createdAt ? new Date(ann.createdAt).toISOString() : null,
+                end: ann.createdAt ? new Date(ann.createdAt).toISOString() : null,
                 type: 'announcement',
-                color: '#f59e0b', // Amber for announcements
+                appliedStudents: [],
                 extendedProps: ann.toObject()
             });
         });

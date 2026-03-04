@@ -82,13 +82,13 @@ export default function StudentVerificationForm() {
     if (loading) return <div className="p-8 text-center text-slate-500">Loading...</div>;
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 animate-[fade-in-up_0.4s_ease-out]">
-            <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 animate-[fade-in-up_0.4s_ease-out] dark:bg-slate-900 dark:border-slate-700">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2 dark:text-slate-100">
                 <CheckCircle className="text-blue-600" /> Verify Your Identity
             </h2>
 
             {status === 'pending' && (
-                <div className="bg-amber-50 border border-amber-200 text-amber-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3">
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3 dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-300">
                     <Clock size={48} className="text-amber-500" />
                     <h3 className="text-lg font-bold">Under Review by TPC</h3>
                     <p className="text-sm">Your application has been received and is currently being processed by the administrators. Please check back later.</p>
@@ -96,7 +96,7 @@ export default function StudentVerificationForm() {
             )}
 
             {status === 'verified' && (
-                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3">
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3 dark:bg-emerald-950/40 dark:border-emerald-800/60 dark:text-emerald-300">
                     <CheckCircle size={48} className="text-emerald-500" />
                     <h3 className="text-lg font-bold">Verification Complete</h3>
                     <p className="text-sm">You have been successfully verified and now have full access to the TPC portal opportunities.</p>
@@ -104,7 +104,7 @@ export default function StudentVerificationForm() {
             )}
 
             {status === 'rejected' && (
-                <div className="bg-red-50 border border-red-200 text-red-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3">
+                <div className="bg-red-50 border border-red-200 text-red-800 p-6 rounded-xl flex items-center flex-col text-center space-y-3 dark:bg-red-950/40 dark:border-red-800/60 dark:text-red-300">
                     <XCircle size={48} className="text-red-500" />
                     <h3 className="text-lg font-bold">Verification Failed</h3>
                     <p className="text-sm">Your application was rejected or you are not eligible. Please contact the TPC administration for further details.</p>
@@ -117,38 +117,38 @@ export default function StudentVerificationForm() {
             {status === 'unsubmitted' && (
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {error && (
-                        <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+                        <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60">
                             {error}
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-700">Full Name</label>
-                            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Enter your full name" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
+                            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Enter your full name" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500" />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-700">Roll Number</label>
-                            <input type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required placeholder="e.g. 2401CS01" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Roll Number</label>
+                            <input type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required placeholder="e.g. 2401CS01" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500" />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-700">Phone Number</label>
-                            <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="+91 9876543210" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Phone Number</label>
+                            <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="+91 9876543210" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500" />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-slate-700">Current CGPA</label>
-                            <input type="number" step="0.01" min="0" max="10" name="cgpa" value={formData.cgpa} onChange={handleChange} required placeholder="e.g. 8.75" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Current CGPA</label>
+                            <input type="number" step="0.01" min="0" max="10" name="cgpa" value={formData.cgpa} onChange={handleChange} required placeholder="e.g. 8.75" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500" />
                         </div>
                     </div>
 
                     <div className="space-y-2 pt-2">
-                        <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-slate-700 flex items-center gap-2 dark:text-slate-300">
                             <FileText size={16} className="text-slate-400" /> Institute ID Card
                         </label>
-                        <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-8 hover:bg-slate-50 transition-colors flex justify-center items-center flex-col group">
+                        <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-8 hover:bg-slate-50 transition-colors flex justify-center items-center flex-col group dark:border-slate-600 dark:hover:bg-slate-800/50">
                             <input type="file" accept="image/jpeg, image/png, image/jpg" onChange={handleFileChange} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                             <UploadCloud size={40} className="text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
                             <p className="text-sm font-semibold text-slate-700">

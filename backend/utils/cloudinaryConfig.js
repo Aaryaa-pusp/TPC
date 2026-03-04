@@ -22,9 +22,26 @@ const uploadOnCloudinary = async (localFilePath) => {
 
         console.log("DEBUG: Initiating cloudinary.uploader.upload...");
         const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto",
+            resource_type: "image", // 'image' allows inline PDF viewing via Cloudinary
             folder: "tpc-student-ids"
         });
+
+        const ext = path.extname(localFilePath).toLowerCase();
+        let finalUrl = response.url.replace('/raw/upload/', '/image/upload/');
+
+        if (ext === '.pdf' && !finalUrl.toLowerCase().endsWith('.pdf')) {
+            finalUrl += '.pdf';
+        }
+
+        // Also ensure secure_url applies the same logic, although the frontend uses response.url
+        response.url = finalUrl;
+        if (response.secure_url) {
+            let finalSecureUrl = response.secure_url.replace('/raw/upload/', '/image/upload/');
+            if (ext === '.pdf' && !finalSecureUrl.toLowerCase().endsWith('.pdf')) {
+                finalSecureUrl += '.pdf';
+            }
+            response.secure_url = finalSecureUrl;
+        }
 
         console.log("DEBUG: Cloudinary upload SUCCESS ->", response.url);
 

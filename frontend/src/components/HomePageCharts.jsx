@@ -16,6 +16,7 @@ import {
     RadialBarChart,
     RadialBar
 } from 'recharts';
+import useTheme from '../hooks/useTheme';
 
 // --- Sample Live State Data ---
 const mockLiveState = {
@@ -67,21 +68,21 @@ const COLORS = {
 };
 
 // Light Theme Custom Tooltip
-const ComplexTooltip = ({ active, payload, label }) => {
+const ComplexTooltip = ({ active, payload, label, isDark }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white/95 backdrop-blur-md border border-gray-100 p-4 rounded-xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] font-sans">
-                <p className="text-gray-900 font-bold mb-3 pb-2 border-b border-gray-100">{label} Academic Year</p>
+            <div className={`backdrop-blur-md border p-4 rounded-xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] font-sans ${isDark ? 'bg-slate-900/95 border-slate-700' : 'bg-white/95 border-gray-100'}`}>
+                <p className={`font-bold mb-3 pb-2 border-b ${isDark ? 'text-slate-100 border-slate-700' : 'text-gray-900 border-gray-100'}`}>{label} Academic Year</p>
                 <div className="space-y-4">
                     {payload.map((entry, index) => {
                         if (entry.dataKey === 'yoyGrowth') {
                             return (
-                                <div key={index} className="flex items-center justify-between gap-6 pt-2 border-t border-gray-50 mt-2">
-                                    <span className="text-slate-600 text-sm font-semibold flex items-center gap-2">
+                                <div key={index} className={`flex items-center justify-between gap-6 pt-2 border-t mt-2 ${isDark ? 'border-slate-700' : 'border-gray-50'}`}>
+                                    <span className={`text-sm font-semibold flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                                         <div className="w-2 h-2 rounded-full bg-slate-600" />
                                         YoY Growth
                                     </span>
-                                    <span className="text-gray-900 font-bold">+{entry.value}%</span>
+                                    <span className={`font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>+{entry.value}%</span>
                                 </div>
                             );
                         }
@@ -93,17 +94,17 @@ const ComplexTooltip = ({ active, payload, label }) => {
 
                         return (
                             <div key={index} className="flex flex-col gap-1.5">
-                                <span className="text-gray-700 text-sm font-semibold flex items-center gap-2">
+                                <span className={`text-sm font-semibold flex items-center gap-2 ${isDark ? 'text-slate-200' : 'text-gray-700'}`}>
                                     <div className="w-2.5 h-2.5 rounded-sm" style={{ background: entry.color === COLORS.BTech ? 'linear-gradient(to right, #86efac, #4ade80)' : entry.color === COLORS.MTech ? 'linear-gradient(to right, #fca5a5, #f87171)' : '#cbd5e1' }} />
                                     {entry.name.replace('_avg', '')}
                                 </span>
-                                <div className="pl-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs font-mono bg-gray-50/50 p-2 rounded-lg border border-gray-100 text-gray-600">
+                                <div className={`pl-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs font-mono p-2 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-gray-50/50 border-gray-100 text-gray-600'}`}>
                                     <span>Avg:</span>
-                                    <span className="font-semibold text-gray-900">{avg} LPA</span>
+                                    <span className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{avg} LPA</span>
                                     <span>Median:</span>
-                                    <span className="font-semibold text-gray-900">{med} LPA</span>
+                                    <span className={`font-semibold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{med} LPA</span>
                                     <span>Highest:</span>
-                                    <span className="font-bold text-gray-900">{high} LPA</span>
+                                    <span className={`font-bold ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>{high} LPA</span>
                                 </div>
                             </div>
                         );
@@ -116,6 +117,25 @@ const ComplexTooltip = ({ active, payload, label }) => {
 };
 
 export default function EditorialPlacementCharts({ data = mockLiveState }) {
+    const { isDark } = useTheme();
+    const axisColor = isDark ? '#cbd5e1' : '#64748b';
+    const gridColor = isDark ? '#334155' : '#f1f5f9';
+    const tooltipBg = isDark ? '#0f172a' : '#ffffff';
+    const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
+    const tooltipText = isDark ? '#e2e8f0' : '#0f172a';
+    const cursorFill = isDark ? '#1e293b' : '#f8fafc';
+    const lineColor = isDark ? '#cbd5e1' : COLORS.Line;
+    const legendTextColor = isDark ? '#e2e8f0' : '#334155';
+    const tooltipContentStyle = {
+        backgroundColor: tooltipBg,
+        border: `1px solid ${tooltipBorder}`,
+        borderRadius: '8px',
+        color: tooltipText,
+        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+    };
+    const tooltipItemStyle = { color: tooltipText };
+    const tooltipLabelStyle = { color: tooltipText, fontWeight: 600 };
+
     // 1. Process Bar Data
     const barData = data.academicYears.map((yearObj, i, arr) => {
         const flat = { name: yearObj.year };
@@ -148,32 +168,32 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
     }));
 
     return (
-        <div id="stats" className="w-full bg-[#F9FAFB] font-sans">
+        <div id="stats" className="w-full bg-[#F9FAFB] font-sans dark:bg-slate-950">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-32">
 
                 {/* --- ROW A: Salary Trends (Text Left, Graph Right) --- */}
                 <div className="flex flex-col lg:flex-row items-center gap-16">
 
                     <div className="w-full lg:w-5/12 space-y-6">
-                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500">
+                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500 dark:border-slate-300 dark:text-slate-400">
                             Compensation Metrics
                         </div>
-                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight dark:text-slate-100">
                             A Steady Climb in Global Compensation
                         </h2>
-                        <p className="text-lg text-gray-600 font-light leading-relaxed">
+                        <p className="text-lg text-gray-600 font-light leading-relaxed dark:text-slate-400">
                             Our graduates continue to secure highly competitive remuneration packages. The sustained Year-over-Year (YoY) growth—averaging 12% across programs—reflects robust industry confidence in IIT Patna's academic rigor.
                         </p>
                         <div className="pt-4 flex gap-8">
                             <div>
-                                <p className="text-4xl font-black text-gray-900">{data.overallMetrics.totalCompaniesVisited}+</p>
-                                <p className="text-sm font-medium text-gray-500 uppercase tracking-widest mt-1">Global Partners</p>
+                                <p className="text-4xl font-black text-gray-900 dark:text-slate-100">{data.overallMetrics.totalCompaniesVisited}+</p>
+                                <p className="text-sm font-medium text-gray-500 uppercase tracking-widest mt-1 dark:text-slate-400">Global Partners</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="w-full lg:w-7/12 flex justify-center lg:justify-end">
-                        <div className="w-full max-w-xl bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
+                        <div className="w-full max-w-xl bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 dark:bg-slate-900 dark:border-slate-700">
                             <div className="h-80 w-full mb-6 relative">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <ComposedChart data={barData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
@@ -191,20 +211,20 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
                                                 <stop offset="95%" stopColor="#94a3b8" stopOpacity={0.9} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }} dy={10} />
-                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }} />
-                                        <Tooltip content={<ComplexTooltip />} cursor={{ fill: '#f8fafc' }} />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: axisColor, fontSize: 12, fontWeight: 500 }} dy={10} />
+                                        <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: axisColor, fontSize: 12 }} />
+                                        <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: axisColor, fontSize: 12, fontWeight: 600 }} />
+                                        <Tooltip content={<ComplexTooltip isDark={isDark} />} cursor={{ fill: cursorFill }} />
 
                                         <Bar yAxisId="left" dataKey="B.Tech_avg" name="B.Tech" fill={COLORS.BTech} radius={[4, 4, 0, 0]} barSize={28} />
                                         <Bar yAxisId="left" dataKey="M.Tech_avg" name="M.Tech" fill={COLORS.MTech} radius={[4, 4, 0, 0]} barSize={28} />
                                         <Bar yAxisId="left" dataKey="M.Sc_avg" name="M.Sc" fill={COLORS.MSc} radius={[4, 4, 0, 0]} barSize={28} />
-                                        <Line yAxisId="right" type="monotone" dataKey="yoyGrowth" stroke={COLORS.Line} strokeWidth={3} dot={{ r: 5, fill: '#fff', stroke: COLORS.Line, strokeWidth: 2 }} activeDot={{ r: 7, fill: COLORS.Line }} />
+                                        <Line yAxisId="right" type="monotone" dataKey="yoyGrowth" stroke={lineColor} strokeWidth={3} dot={{ r: 5, fill: '#fff', stroke: lineColor, strokeWidth: 2 }} activeDot={{ r: 7, fill: lineColor }} />
                                     </ComposedChart>
                                 </ResponsiveContainer>
                             </div>
-                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200">
+                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200 dark:text-slate-400 dark:border-slate-700">
                                 <span className="font-semibold">Insight:</span> The consistent rise in Median packages across all programs highlights the increasing baseline quality of offers, independent of highest-package outliers.
                             </p>
                         </div>
@@ -216,7 +236,7 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
                 <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
 
                     <div className="w-full lg:w-6/12 flex justify-center lg:justify-start">
-                        <div className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col items-center">
+                        <div className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col items-center dark:bg-slate-900 dark:border-slate-700">
                             <div className="h-72 w-full mb-6">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <RadialBarChart
@@ -228,33 +248,41 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
                                     >
                                         <RadialBar
                                             minAngle={15}
-                                            background={{ fill: '#f1f5f9' }}
+                                            background={{ fill: isDark ? '#334155' : '#f1f5f9' }}
                                             clockWise
                                             dataKey="value"
                                             cornerRadius={10}
                                         />
                                         <Tooltip
                                             formatter={(value, name) => [`${value}% Placed`, name]}
-                                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                                            contentStyle={tooltipContentStyle}
+                                            itemStyle={tooltipItemStyle}
+                                            labelStyle={tooltipLabelStyle}
                                         />
-                                        <Legend iconSize={10} layout="horizontal" verticalAlign="bottom" wrapperStyle={{ fontSize: '13px', color: '#64748b', paddingTop: '15px' }} />
+                                        <Legend
+                                            iconSize={10}
+                                            layout="horizontal"
+                                            verticalAlign="bottom"
+                                            wrapperStyle={{ fontSize: '13px', color: legendTextColor, paddingTop: '15px' }}
+                                            formatter={(value) => <span style={{ color: legendTextColor }}>{value}</span>}
+                                        />
                                     </RadialBarChart>
                                 </ResponsiveContainer>
                             </div>
-                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200">
+                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200 dark:text-slate-400 dark:border-slate-700">
                                 <span className="font-semibold">Insight:</span> The B.Tech placement rate holds strong at 96%, with M.Tech post-graduates following aggressively behind.
                             </p>
                         </div>
                     </div>
 
                     <div className="w-full lg:w-5/12 space-y-6">
-                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500">
+                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500 dark:border-slate-300 dark:text-slate-400">
                             Conversion Efficacy
                         </div>
-                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight dark:text-slate-100">
                             Near-Universal Placement Success
                         </h2>
-                        <p className="text-lg text-gray-600 font-light leading-relaxed">
+                        <p className="text-lg text-gray-600 font-light leading-relaxed dark:text-slate-400">
                             We take pride in our 93.5% overall placement conversion rate. The Training and Placement Cell works relentlessly to match every eligible candidate with roles that align with their technical expertise and career trajectory.
                         </p>
                     </div>
@@ -264,25 +292,27 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
                 <div className="flex flex-col lg:flex-row items-center gap-16">
 
                     <div className="w-full lg:w-5/12 space-y-6">
-                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500">
+                        <div className="inline-block border-b-2 border-gray-900 pb-1 text-sm font-bold tracking-widest uppercase text-gray-500 dark:border-slate-300 dark:text-slate-400">
                             Industry Footprint
                         </div>
-                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight dark:text-slate-100">
                             Leading the IT & Analytics Frontier
                         </h2>
-                        <p className="text-lg text-gray-600 font-light leading-relaxed">
+                        <p className="text-lg text-gray-600 font-light leading-relaxed dark:text-slate-400">
                             Software and IT logic sectors continue to dominate the recruitment landscape, absorbing over 40% of our candidate pool. Notably, Core Engineering roles maintain a strong, vital presence for our specialized domain students.
                         </p>
                     </div>
 
                     <div className="w-full lg:w-6/12 flex justify-center lg:justify-end">
-                        <div className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
+                        <div className="w-full max-w-lg bg-white p-6 rounded-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100 dark:bg-slate-900 dark:border-slate-700">
                             <div className="h-64 w-full mb-6">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Tooltip
                                             formatter={(value) => [`${value} Companies`, 'Recruiters']}
-                                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                                            contentStyle={tooltipContentStyle}
+                                            itemStyle={tooltipItemStyle}
+                                            labelStyle={tooltipLabelStyle}
                                         />
                                         <Pie
                                             data={data.sectors}
@@ -299,7 +329,7 @@ export default function EditorialPlacementCharts({ data = mockLiveState }) {
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200">
+                            <p className="text-sm text-gray-500 italic px-2 border-l-2 border-gray-200 dark:text-slate-400 dark:border-slate-700">
                                 <span className="font-semibold">Insight:</span> A marked surge in FinTech specific hiring pushed the Analytics sector representation dramatically upwards this year.
                             </p>
                         </div>

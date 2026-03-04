@@ -85,21 +85,66 @@ exports.assignAdminPower = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
     try {
-        // Both super_admin, announcement_admin, student_admin can create events theoretically based on requirements
-        const { title, description, date, type, targetBranches, deadline } = req.body;
+        const { title, description, date, startDate, endDate, deadline, type, targetBranches, links, companyEmail } = req.body;
+
+        let mappedCompany = null;
+        if (companyEmail) {
+            mappedCompany = await Company.findOne({ email: companyEmail });
+            if (!mappedCompany) {
+                return res.status(404).json({ message: 'Company email not found. Event creation aborted.' });
+            }
+        }
+
+        // Apply fallback unified date logic if `endDate` wasn't sent alongside `deadline`
+        const finalEndDate = endDate || deadline || startDate || date;
 
         const newEvent = await Event.create({
             title,
             description,
-            date,
+            date: date || startDate,
+            startDate: startDate || date,
+            endDate: finalEndDate,
             type,
             targetBranches,
-            deadline,
-            createdBy: req.user.userId
+            deadline: deadline || finalEndDate,
+            links: links || [],
+            createdBy: req.user.userId,
+            companyRef: mappedCompany ? mappedCompany._id : undefined
         });
+
+        // Link Event to the Company's roster so Applicants Database works
+        if (mappedCompany) {
+            mappedCompany.events.push(newEvent._id);
+            await mappedCompany.save();
+        }
 
         res.status(201).json({ message: 'Event created', event: newEvent });
     } catch (err) {
+        console.error('createEvent Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.getEvents = async (req, res) => {
+    try {
+        const events = await Event.find().sort({ startDate: 1 }).populate('createdBy', 'fullName email');
+        res.status(200).json({ events });
+    } catch (err) {
+        console.error('getEvents Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.deleteEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedEvent = await Event.findByIdAndDelete(id);
+        if (!deletedEvent) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+        res.status(200).json({ message: 'Event deleted' });
+    } catch (err) {
+        console.error('deleteEvent Error:', err);
         res.status(500).json({ message: 'Internal server error' });
     }
 };

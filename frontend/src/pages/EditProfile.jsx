@@ -121,11 +121,11 @@ export default function EditProfile() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
-            <h1 className="text-2xl font-bold text-slate-800 mb-6">Edit Profile</h1>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
+            <h1 className="text-2xl font-bold text-slate-800 mb-6 dark:text-slate-100">Edit Profile</h1>
 
             {!isVerified && (
-                <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl flex items-start gap-3">
+                <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl flex items-start gap-3 dark:bg-amber-950/40 dark:border-amber-800/60 dark:text-amber-300">
                     <ShieldAlert className="w-5 h-5 text-amber-600 mt-0.5" />
                     <div>
                         <h3 className="font-semibold">Verification Required</h3>
@@ -136,8 +136,8 @@ export default function EditProfile() {
                 </div>
             )}
 
-            {message && <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl border border-green-200">{message}</div>}
-            {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200">{error}</div>}
+            {message && <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800/60">{message}</div>}
+            {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900/60">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -239,13 +239,13 @@ export default function EditProfile() {
                 )}
 
                 {user.role !== 'admin' && (
-                    <div className="pt-6 border-t border-slate-100 flex justify-end">
+                    <div className="pt-6 border-t border-slate-100 flex justify-end dark:border-slate-700">
                         <button
                             type="submit"
                             disabled={!isVerified || saving}
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all shadow-sm ${!isVerified || saving
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-[0.98]'
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500'
+                                : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-[0.98]'
                                 }`}
                         >
                             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
@@ -262,16 +262,16 @@ export default function EditProfile() {
 const InputField = ({ label, name, value, onChange, disabled }) => {
     return (
         <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">{label}</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5 dark:text-slate-300">{label}</label>
             <input
                 type="text"
                 name={name}
                 value={value}
                 onChange={onChange}
                 disabled={disabled}
-                className={`w-full px-4 py-2.5 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-800 ${disabled
-                        ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed'
-                        : 'bg-white border-slate-300 hover:border-slate-400 focus:border-blue-500'
+                className={`w-full px-4 py-2.5 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-100 ${disabled
+                    ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed dark:bg-slate-800/80 dark:text-slate-400 dark:border-slate-700'
+                    : 'bg-white border-slate-300 hover:border-slate-400 focus:border-blue-500 dark:bg-slate-800 dark:border-slate-600 dark:hover:border-slate-500'
                     }`}
             />
         </div>

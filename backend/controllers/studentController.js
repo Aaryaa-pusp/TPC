@@ -156,6 +156,8 @@ exports.updateProfile = async (req, res) => {
             } else {
                 return res.status(500).json({ message: 'Error uploading resume to Cloudinary.' });
             }
+        } else if (req.body.removeResume === 'true') {
+            updateData.resumeLink = ''; // Clear the resume link
         }
 
         const updatedStudent = await Student.findByIdAndUpdate(

@@ -9,9 +9,16 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    // Legacy field kept for backward compatibility
     date: {
         type: Date,
+    },
+    startDate: {
+        type: Date,
         required: true,
+    },
+    endDate: {
+        type: Date,
     },
     type: {
         type: String,
@@ -25,12 +32,37 @@ const eventSchema = new mongoose.Schema({
     deadline: {
         type: Date,
     },
+    appliedStudents: [{
+        type: String,
+    }],
+    links: [{
+        label: { type: String },
+        url: { type: String },
+    }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
+    },
+    companyRef: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
     }
 }, { timestamps: true });
+
+// If endDate is not set, default to startDate
+eventSchema.pre('save', function (next) {
+    if (!this.endDate) {
+        this.endDate = this.startDate;
+    }
+    // Keep legacy date field in sync
+    if (!this.date) {
+        this.date = this.startDate;
+    }
+    if (typeof next === 'function') {
+        next();
+    }
+});
 
 const Event = mongoose.model('Event', eventSchema);
 
