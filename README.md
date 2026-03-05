@@ -1,16 +1,100 @@
-# React + Vite
+# IIT Patna Training and Placement Cell (TPC) Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+The official Training and Placement Committee (TPC) portal for the Indian Institute of Technology (IIT) Patna. This platform is designed to seamlessly connect Students, Companies, and TPC Admins. It aims to streamline the recruitment process for companies and students by providing a centralized hub for events, internships, and placement drives.
 
-Currently, two official plugins are available:
+## Key Features
+- **Student Portal:** Centralized dashboard for accessing announcements, calendar events (internships, placement drives), updating user profiles, and viewing related opportunities.
+- **Company Portal:** Advanced filtering and search of the student database to recruit top talent easily. 
+- **Admin Dashboard:** Role-based access control (Super Admin, Announcement Admin, Student Admin) to manage users, verify companies, and oversee announcements and activities.
+- **Passwordless Authentication:** Secure OTP-based login via email for all user roles.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+### Frontend
+- **Framework:** React.js powered by Vite
+- **Styling:** Tailwind CSS & Framer Motion (for animations)
+- **Data Visualization:** Recharts
+- **Calendar Handling:** React Big Calendar 
+- **Routing:** React Router DOM
 
-## React Compiler
+### Backend
+- **Framework:** Node.js, Express.js
+- **Database:** MongoDB configured with Mongoose ODM
+- **Authentication:** JWT (JSON Web Tokens) and bcryptjs
+- **Storage:** Cloudinary plugin for file and image management
+- **Email Delivery:** Nodemailer
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Project Structure
+```text
+TPC/
+├── backend/            # Express.js REST API
+│   ├── models/         # Mongoose schemas (User, Student, Company, Admin, Event, OTP)
+│   ├── routes/         # API endpoints
+│   ├── controllers/    # Business logic for routes
+│   └── middleware/     # JWT and Role-Based Access Control logic
+├── frontend/           # React.js web application
+│   ├── src/
+│   │   ├── components/ # Reusable UI components
+│   │   ├── pages/      # Route pages (Dashboard, Landing, Calendar, etc.)
+│   │   └── assets/     # Static file assets
+└── README.md
+```
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- MongoDB instance (Atlas or local)
+- Cloudinary account (for media storage)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd TPC
+   ```
+
+2. **Backend Setup:**
+   ```bash
+   cd backend
+   npm install
+   ```
+   *Create a `.env` file in the `backend` directory with the following keys:*
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   EMAIL_USER=your_smtp_email
+   EMAIL_PASS=your_smtp_password
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   ```
+   *Start the backend server:*
+   ```bash
+   npm run dev
+   ```
+
+3. **Frontend Setup:**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+   *Create a `.env` file in the `frontend` directory with the following keys:*
+   ```env
+   VITE_API_URL=http://localhost:5000/api
+   ```
+   *Start the frontend development server:*
+   ```bash
+   npm run dev
+   ```
+
+## Authorization & Security
+This application implements rigorous Route Protection and Role-Based Access Control (RBAC). 
+- Companies are subjected to an approval workflow before accessing the Student Database. 
+- Admins possess hierarchical permissions determining what data and actions they can access.
+- Confidential functionality is completely hidden or disabled for unauthorized users.
+
+## Acknowledgements
+Designed and implemented for the Training and Placement Cell, IIT Patna.

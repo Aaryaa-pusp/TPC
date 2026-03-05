@@ -78,19 +78,26 @@ const StudentCalendar = () => {
     const [applySuccess, setApplySuccess] = useState({});
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    // ±2 months navigation bounds
-    const { minDate, maxDate } = useMemo(() => {
-        const now = new Date();
-        const min = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-        const max = new Date(now.getFullYear(), now.getMonth() + 3, 0); // last day of +2 month
-        return { minDate: min, maxDate: max };
-    }, []);
+    // ±2 months navigation bounds (relative to today, computed once)
+    const today = useMemo(() => new Date(), []);
+    const minMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() - 2, 1), [today]);
+    const maxMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() + 2, 1), [today]);
 
-    const handleNavigate = (newDate) => {
-        if (newDate >= minDate && newDate <= maxDate) {
-            setCurrentDate(newDate);
-        }
+    // Returns true if the viewed month equals the (year, month) of the given boundary
+    const isAtMin = currentDate.getFullYear() === minMonth.getFullYear() && currentDate.getMonth() === minMonth.getMonth();
+    const isAtMax = currentDate.getFullYear() === maxMonth.getFullYear() && currentDate.getMonth() === maxMonth.getMonth();
+
+    const goToPrev = () => {
+        if (isAtMin) return;
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
     };
+
+    const goToNext = () => {
+        if (isAtMax) return;
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    };
+
+    const goToToday = () => setCurrentDate(new Date());
 
     const fetchCalendar = useCallback(async () => {
         try {
@@ -227,31 +234,59 @@ const StudentCalendar = () => {
 
     return (
         <div className="h-[calc(100vh-110px)]">
-            {/* Legend Bar */}
-            <div className="flex items-center gap-4 mb-4 flex-wrap px-1">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-300">Legend:</span>
-                {[
-                    { color: COLORS.APPLIED, label: 'Applied' },
-                    { color: COLORS.ACTIVE, label: 'Active' },
-                    { color: COLORS.UPCOMING, label: 'Upcoming' },
-                    { color: COLORS.PAST, label: 'Past' },
-                    { color: COLORS.ANNOUNCEMENT, label: 'Announcement' },
-                ].map(item => (
-                    <div key={item.label} className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
-                        <span className="text-xs text-slate-600 font-medium dark:text-slate-300">{item.label}</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="flex h-[calc(100%-40px)] w-full overflow-hidden bg-gray-50 rounded-xl relative border border-slate-200 shadow-sm">
-                {/* ─── Calendar Grid (70%) ─── */}
+            <div className="flex h-full w-full overflow-hidden bg-white rounded-xl relative border border-slate-200 shadow-sm">
+                {/* ─── Calendar Grid ─── */}
                 <motion.div
                     animate={{ width: selectedEvent ? '68%' : '100%' }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    className="calendar-color-lock student-calendar-surface h-full p-4 bg-white"
+                    className="calendar-color-lock student-calendar-surface flex flex-col h-full bg-white"
                     style={{ colorScheme: 'light' }}
                 >
+                    {/* ─── Legend row ─── */}
+                    <div className="flex items-center gap-4 flex-wrap px-4 pt-3 pb-2 border-b border-slate-100">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Legend:</span>
+                        {[
+                            { color: COLORS.APPLIED, label: 'Applied' },
+                            { color: COLORS.ACTIVE, label: 'Active' },
+                            { color: COLORS.UPCOMING, label: 'Upcoming' },
+                            { color: COLORS.PAST, label: 'Past' },
+                            { color: COLORS.ANNOUNCEMENT, label: 'Announcement' },
+                        ].map(item => (
+                            <div key={item.label} className="flex items-center gap-1.5">
+                                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
+                                <span className="text-xs text-slate-600 font-medium">{item.label}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ─── Toolbar: buttons left, month centred ─── */}
+                    <div className="relative flex items-center px-4 py-2 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={goToPrev}
+                                disabled={isAtMin}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                                ‹ Back
+                            </button>
+                            <button
+                                onClick={goToToday}
+                                className="px-3 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-semibold hover:bg-blue-100 transition-colors shadow-sm"
+                            >
+                                Today
+                            </button>
+                            <button
+                                onClick={goToNext}
+                                disabled={isAtMax}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                                Next ›
+                            </button>
+                        </div>
+                        <span className="absolute left-1/2 -translate-x-1/2 text-sm font-bold text-slate-700 pointer-events-none">
+                            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </span>
+                    </div>
                     <style>{`
                         /* Force light-theme for every internal rbc element —
                            overrides the global color-scheme:dark cascade */
@@ -308,19 +343,23 @@ const StudentCalendar = () => {
                             color: #3b82f6 !important;
                         }
                     `}</style>
-                    <Calendar
-                        localizer={localizer}
-                        events={events}
-                        startAccessor="start"
-                        endAccessor="end"
-                        style={{ height: '100%' }}
-                        date={currentDate}
-                        onNavigate={handleNavigate}
-                        onSelectEvent={handleSelectEvent}
-                        eventPropGetter={eventPropGetter}
-                        views={['month']}
-                        popup={true}
-                    />
+                    <div className="flex-1 overflow-hidden">
+                        <Calendar
+                            localizer={localizer}
+                            events={events}
+                            startAccessor="start"
+                            endAccessor="end"
+                            style={{ height: '100%' }}
+                            date={currentDate}
+                            onNavigate={() => { }}
+                            onSelectEvent={handleSelectEvent}
+                            eventPropGetter={eventPropGetter}
+                            views={['month']}
+                            defaultView="month"
+                            toolbar={false}
+                            popup={true}
+                        />
+                    </div>
                 </motion.div>
 
                 {/* ─── Details Pane (32%) ─── */}

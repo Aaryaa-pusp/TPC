@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -29,7 +29,27 @@ export default function StudentDashboard() {
     const [announcements, setAnnouncements] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [viewedIds, setViewedIds] = useState(new Set());
-    const [calView, setCalView] = useState('month');
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    // ±2 months navigation bounds (relative to today, computed once)
+    const today = useMemo(() => new Date(), []);
+    const minMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() - 2, 1), [today]);
+    const maxMonth = useMemo(() => new Date(today.getFullYear(), today.getMonth() + 2, 1), [today]);
+
+    const isAtMin = currentDate.getFullYear() === minMonth.getFullYear() && currentDate.getMonth() === minMonth.getMonth();
+    const isAtMax = currentDate.getFullYear() === maxMonth.getFullYear() && currentDate.getMonth() === maxMonth.getMonth();
+
+    const goToPrev = () => {
+        if (isAtMin) return;
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    };
+
+    const goToNext = () => {
+        if (isAtMax) return;
+        setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    };
+
+    const goToToday = () => setCurrentDate(new Date());
 
     useEffect(() => {
         if (token && user) {
@@ -78,27 +98,31 @@ export default function StudentDashboard() {
 
     const eventStyleGetter = (event) => {
         const isViewed = viewedIds.has(event.id || event.title);
-        let color = isViewed ? '#93c5fd' : '#3b82f6';
-        if (event.type === 'internship') color = isViewed ? '#6ee7b7' : '#10b981';
-        if (event.type === 'placement_drive') color = isViewed ? '#c4b5fd' : '#8b5cf6';
-        if (event.type === 'announcement') color = isViewed ? '#fcd34d' : '#f59e0b';
 
-        // In week/day views render as colored pills; in month view dots handle it via CSS
-        if (calView !== 'month') {
+        // Announcements → solid amber box + class so CSS can also target it
+        if (event.type === 'announcement') {
+            const bg = isViewed ? '#fbbf24' : '#f59e0b';
             return {
+                className: 'rbc-event-announcement',
                 style: {
-                    backgroundColor: color,
-                    borderRadius: '8px',
-                    border: 'none',
+                    backgroundColor: bg,
                     color: '#fff',
-                    fontSize: '0.78rem',
-                    fontWeight: 500,
-                    padding: '2px 8px',
-                    opacity: isViewed ? 0.7 : 1,
+                    borderRadius: '6px',
+                    border: 'none',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 7px',
+                    opacity: isViewed ? 0.75 : 1,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
                 }
             };
         }
-        // Month view: transparent background, CSS dot uses currentColor
+
+        // All other types → transparent background, CSS dot via ::before
+        let color = isViewed ? '#93c5fd' : '#3b82f6';
+        if (event.type === 'internship') color = isViewed ? '#6ee7b7' : '#10b981';
+        if (event.type === 'placement_drive') color = isViewed ? '#c4b5fd' : '#8b5cf6';
+
         return {
             style: {
                 color,
@@ -111,17 +135,15 @@ export default function StudentDashboard() {
         };
     };
 
-    const calendarEvents = [
-        ...events,
-        ...announcements.map(a => ({
-            id: a._id,
-            title: a.title,
-            start: new Date(a.createdAt),
-            end: new Date(new Date(a.createdAt).getTime() + 60 * 60 * 1000),
-            type: a.type || 'announcement',
-            description: a.content || a.description
-        }))
-    ];
+    // Dashboard calendar shows only announcements
+    const calendarEvents = announcements.map(a => ({
+        id: a._id,
+        title: a.title,
+        start: new Date(a.createdAt),
+        end: new Date(new Date(a.createdAt).getTime() + 60 * 60 * 1000),
+        type: a.type || 'announcement',
+        description: a.content || a.description
+    }));
 
     const handleSelectEvent = (event) => {
         setSelectedEvent(event);
@@ -146,9 +168,40 @@ export default function StudentDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Calendar Area */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-[0_12px_32px_-20px_rgba(15,23,42,0.5)] border border-slate-100 flex flex-col backdrop-blur-sm">
-                    <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                    {/* Header: title */}
+                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-3">
                         <CalendarIcon className="text-blue-500" /> Event Calendar
                     </h2>
+                    {/* Toolbar row: buttons left, month centred */}
+                    <div className="relative flex items-center mb-4 pb-4 border-b border-slate-100">
+                        {/* Left — nav buttons */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={goToPrev}
+                                disabled={isAtMin}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                                ‹ Back
+                            </button>
+                            <button
+                                onClick={goToToday}
+                                className="px-3 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 text-sm font-semibold hover:bg-blue-100 transition-colors shadow-sm"
+                            >
+                                Today
+                            </button>
+                            <button
+                                onClick={goToNext}
+                                disabled={isAtMax}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            >
+                                Next ›
+                            </button>
+                        </div>
+                        {/* Centre — month label (absolute so it doesn't push buttons) */}
+                        <span className="absolute left-1/2 -translate-x-1/2 text-sm font-bold text-slate-700 pointer-events-none">
+                            {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </span>
+                    </div>
                     <div className="flex-1 min-h-[500px] calendar-wrapper calendar-color-lock">
                         <style>{`
                             /* --- Base --- */
@@ -182,22 +235,22 @@ export default function StudentDashboard() {
                                 text-decoration: none;
                             }
                             .rbc-date-cell button:hover, .rbc-date-cell a:hover { background: #e2e8f0; }
+                            /* Today date number — plain, no circle */
                             .rbc-now .rbc-button-link, .rbc-now button, .rbc-now a {
-                                background: #3b82f6 !important;
-                                color: #fff !important;
-                                font-weight: 700 !important;
+                                background: transparent !important;
+                                color: #1d4ed8 !important;
+                                font-weight: 800 !important;
                             }
-                            .rbc-today { background-color: #eff6ff; }
+                            /* Today's full cell — top-to-bottom blue gradient */
+                            .rbc-today { background: linear-gradient(to bottom, #eff6ff 0%, #93c5fd 100%) !important; }
                             .rbc-off-range-bg { background-color: #e8edf4; }
-                            /* Current month cells — slightly off-white */
+                            /* Current month cells */
                             .rbc-month-view .rbc-day-bg {
                                 background-color: #ffffff;
-                                border-radius: 12px;
                             }
-                            /* Today's cell */
+                            /* Today's cell — top-to-bottom blue gradient */
                             .rbc-month-view .rbc-today {
-                                background-color: #eff6ff;
-                                border-radius: 12px;
+                                background: linear-gradient(to bottom, #eff6ff 0%, #93c5fd 100%) !important;
                             }
                             /* Prev / next month cells — noticeably darker */
                             .rbc-month-view .rbc-off-range-bg {
@@ -211,13 +264,21 @@ export default function StudentDashboard() {
                                 opacity: 1;
                             }
 
-                            /* --- Events as colored dot circles in MONTH VIEW only --- */
+                            /* --- Events: dot style by default, solid box for announcements --- */
                             .rbc-month-view .rbc-event {
                                 padding: 0 !important;
                                 background: transparent !important;
                                 border: none !important;
                                 box-shadow: none !important;
                                 min-height: unset !important;
+                            }
+                            /* Announcements override: solid amber box */
+                            .rbc-month-view .rbc-event[data-type="announcement"],
+                            .rbc-month-view .rbc-event.rbc-event-announcement {
+                                background: #f59e0b !important;
+                                border-radius: 6px !important;
+                                padding: 1px 6px !important;
+                                box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
                             }
                             .rbc-month-view .rbc-event-content {
                                 display: flex;
@@ -231,7 +292,7 @@ export default function StudentDashboard() {
                                 text-overflow: ellipsis;
                                 color: #1e293b;
                             }
-                            /* Colored dot before title — month view only */
+                            /* Colored dot before title — month view only (not for announcement boxes) */
                             .rbc-month-view .rbc-event-content::before {
                                 content: '';
                                 display: inline-block;
@@ -240,6 +301,14 @@ export default function StudentDashboard() {
                                 border-radius: 50%;
                                 background: currentColor;
                                 flex-shrink: 0;
+                            }
+                            /* Announcement box: no dot, white text */
+                            .rbc-month-view .rbc-event.rbc-event-announcement .rbc-event-content::before {
+                                display: none;
+                            }
+                            .rbc-month-view .rbc-event.rbc-event-announcement .rbc-event-content {
+                                color: #fff !important;
+                                font-weight: 700;
                             }
                             .rbc-event-label { display: none; }
                             .rbc-selected { outline: none !important; }
@@ -317,11 +386,12 @@ export default function StudentDashboard() {
                             startAccessor="start"
                             endAccessor="end"
                             style={{ height: 500 }}
-                            defaultDate={new Date(2026, 2, 3)}
+                            date={currentDate}
+                            onNavigate={() => { }}
                             eventPropGetter={eventStyleGetter}
-                            views={['month', 'week', 'day']}
-                            view={calView}
-                            onView={setCalView}
+                            views={['month']}
+                            defaultView="month"
+                            toolbar={false}
                             popup={true}
                             onSelectEvent={handleSelectEvent}
                         />
