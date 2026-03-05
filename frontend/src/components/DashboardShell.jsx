@@ -27,7 +27,10 @@ export default function DashboardShell() {
     };
 
     const SidebarItem = ({ icon: Icon, label, path, disabled }) => {
-        const isActive = window.location.pathname.includes(path);
+        const isDashboardHome = path === `/dashboard/${user.role}`;
+        const isActive = isDashboardHome
+            ? window.location.pathname === path || window.location.pathname === `${path}/`
+            : window.location.pathname.includes(path);
         return (
             <button
                 disabled={disabled}
