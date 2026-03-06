@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Tilt from 'react-parallax-tilt';
-import { Github, Linkedin, LayoutDashboard } from 'lucide-react';
+import { Github, Linkedin, LayoutDashboard, Home, Briefcase, Code, BarChart2, Phone, Menu, X } from 'lucide-react';
 import axios from 'axios';
 import ThemeToggle from '../components/ThemeToggle';
 import logo from '../assets/logo.png';
@@ -113,7 +113,8 @@ const DeveloperCard = ({ member, index }) => {
 export default function DevelopersPage() {
     const [developers, setDevelopers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useAuth();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { user, token, logout } = useAuth();
 
     useEffect(() => {
         const fetchDevelopers = async () => {
