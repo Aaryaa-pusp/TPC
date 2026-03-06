@@ -108,10 +108,29 @@ export default function DashboardShell() {
 
                         {user.role === 'student' && (
                             <>
-                                <SidebarItem icon={Bell} label="Announcements" path="/dashboard/student/announcements" />
-                                <SidebarItem icon={CalendarIcon} label="Calendar & Events" path="/dashboard/student/calendar" />
-                                <SidebarItem icon={FileText} label="My Resumes" path="/dashboard/student/resumes" />
-                                <SidebarItem icon={CheckCircle} label="Verify Yourself" path="/dashboard/student/verify" />
+                                <SidebarItem
+                                    icon={Bell}
+                                    label="Announcements"
+                                    path="/dashboard/student/announcements"
+                                    disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                />
+                                <SidebarItem
+                                    icon={CalendarIcon}
+                                    label="Calendar & Events"
+                                    path="/dashboard/student/calendar"
+                                    disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                />
+                                <SidebarItem
+                                    icon={FileText}
+                                    label="My Resumes"
+                                    path="/dashboard/student/resumes"
+                                    disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                />
+                                <SidebarItem
+                                    icon={CheckCircle}
+                                    label="Verify Yourself"
+                                    path="/dashboard/student/verify"
+                                />
                             </>
                         )}
 

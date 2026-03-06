@@ -17,6 +17,8 @@ const adminSchema = new mongoose.Schema({
     }
 });
 
+adminSchema.index({ adminType: 1 });
+
 const Admin = User.discriminator('admin', adminSchema);
 
 module.exports = Admin;

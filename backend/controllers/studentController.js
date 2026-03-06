@@ -4,18 +4,48 @@ const Announcement = require('../models/Announcement');
 
 exports.getEvents = async (req, res) => {
     try {
+        const studentId = req.user.userId;
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found.' });
+        }
+
         const { type, targetBranch } = req.query;
 
-        const query = {};
+        const query = { $and: [] };
         if (type) query.type = type;
 
         const targetBranchesRegex = [];
         if (targetBranch && targetBranch.trim() && targetBranch.trim().toLowerCase() !== 'undefined') {
             targetBranchesRegex.push(new RegExp(`^${targetBranch.trim()}$`, 'i'));
+        } else if (student.department) {
+            targetBranchesRegex.push(new RegExp(`^${student.department}$`, 'i'));
         }
-        // Always allow matching 'All'
         targetBranchesRegex.push(/^all$/i);
-        query.targetBranches = { $in: targetBranchesRegex };
+
+        query.$and.push({
+            $or: [
+                { targetBranches: { $size: 0 } },
+                { targetBranches: { $in: targetBranchesRegex } }
+            ]
+        });
+
+        query.$and.push(student.program ? {
+            $or: [
+                { targetPrograms: { $size: 0 } },
+                { targetPrograms: { $in: [student.program] } }
+            ]
+        } : { targetPrograms: { $size: 0 } });
+
+        query.$and.push(student.currentYearOfStudy ? {
+            $or: [
+                { targetYears: { $size: 0 } },
+                { targetYears: { $in: [student.currentYearOfStudy] } }
+            ]
+        } : { targetYears: { $size: 0 } });
+
+        // Clean up empty $and if needed, though we always push at least branches
+        if (query.$and.length === 0) delete query.$and;
 
         const events = await Event.find(query).sort({ date: 1 });
         res.status(200).json({ events });
@@ -27,9 +57,43 @@ exports.getEvents = async (req, res) => {
 
 exports.getAnnouncements = async (req, res) => {
     try {
+        const studentId = req.user.userId;
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found.' });
+        }
+
+        const query = { $and: [] };
+
+        const targetBranchesRegex = [/^all$/i];
+        if (student.department) {
+            targetBranchesRegex.push(new RegExp(`^${student.department}$`, 'i'));
+        }
+
+        query.$and.push({
+            $or: [
+                { targetBranches: { $size: 0 } },
+                { targetBranches: { $in: targetBranchesRegex } }
+            ]
+        });
+
+        query.$and.push(student.program ? {
+            $or: [
+                { targetPrograms: { $size: 0 } },
+                { targetPrograms: { $in: [student.program] } }
+            ]
+        } : { targetPrograms: { $size: 0 } });
+
+        query.$and.push(student.currentYearOfStudy ? {
+            $or: [
+                { targetYears: { $size: 0 } },
+                { targetYears: { $in: [student.currentYearOfStudy] } }
+            ]
+        } : { targetYears: { $size: 0 } });
+
         // Sort by effective date = max(editedAt, createdAt) so edited announcements
         // slot into the correct chronological position instead of jumping to the top.
-        const raw = await Announcement.find({})
+        const raw = await Announcement.find(query)
             .populate('createdBy', 'fullName email');
         const announcements = raw
             .sort((a, b) => {
@@ -63,6 +127,7 @@ exports.submitVerification = async (req, res) => {
         if (req.body.rollNumber) updateData.rollNumber = req.body.rollNumber;
         if (cgpa) updateData.cgpa = parseFloat(cgpa);
         if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (req.body.currentYearOfStudy) updateData.currentYearOfStudy = req.body.currentYearOfStudy;
 
         console.log("DEBUG: Checking for file to upload to Cloudinary...");
         if (req.file && req.file.path) {

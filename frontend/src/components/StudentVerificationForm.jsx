@@ -11,6 +11,7 @@ export default function StudentVerificationForm() {
         rollNumber: user?.rollNumber || '',
         phoneNumber: '',
         cgpa: '',
+        currentYearOfStudy: user?.currentYearOfStudy || '',
     });
     const [idCard, setIdCard] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -55,6 +56,9 @@ export default function StudentVerificationForm() {
         data.append('rollNumber', formData.rollNumber);
         data.append('phoneNumber', formData.phoneNumber);
         data.append('cgpa', formData.cgpa);
+        if (formData.currentYearOfStudy) {
+            data.append('currentYearOfStudy', formData.currentYearOfStudy);
+        }
         data.append('idCard', idCard);
 
         try {
@@ -142,6 +146,18 @@ export default function StudentVerificationForm() {
                             <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Current CGPA</label>
                             <input type="number" step="0.01" min="0" max="10" name="cgpa" value={formData.cgpa} onChange={handleChange} required placeholder="e.g. 8.75" className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder-slate-500" />
                         </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Current Year of Study</label>
+                        <select name="currentYearOfStudy" value={formData.currentYearOfStudy} onChange={handleChange} required className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100">
+                            <option value="" disabled>Select Current Year</option>
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year">4th Year</option>
+                            <option value="5th Year">5th Year</option>
+                        </select>
                     </div>
 
                     <div className="space-y-2 pt-2">

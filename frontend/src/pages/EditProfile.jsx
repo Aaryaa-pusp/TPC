@@ -79,6 +79,7 @@ export default function EditProfile() {
                 // Use FormData due to file upload possibility
                 const fd = new FormData();
                 if (formData.phoneNumber) fd.append('phoneNumber', formData.phoneNumber);
+                if (formData.currentYearOfStudy) fd.append('currentYearOfStudy', formData.currentYearOfStudy);
                 if (resumeFile) fd.append('resume', resumeFile);
                 bodyData = fd;
             } else if (user.role === 'company') {
@@ -159,6 +160,8 @@ export default function EditProfile() {
                                 onChange={handleInputChange}
                                 disabled={!isVerified}
                             />
+
+                            <InputField label="Current Year of Study" name="currentYearOfStudy" value={profile.currentYearOfStudy || ''} disabled />
                         </div>
 
                         {/* Resume Upload Box */}

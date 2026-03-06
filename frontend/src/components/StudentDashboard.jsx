@@ -9,7 +9,7 @@ import enUS from 'date-fns/locale/en-US';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './StudentDashboard.css';
-import { Calendar as CalendarIcon, Megaphone, Clock, Briefcase } from 'lucide-react';
+import { Calendar as CalendarIcon, Megaphone, Clock, Briefcase, AlertTriangle } from 'lucide-react';
 
 const locales = {
     'en-US': enUS,
@@ -31,6 +31,8 @@ export default function StudentDashboard() {
     const [selectedIndex, setSelectedIndex] = useState(null);
     const [viewedIds, setViewedIds] = useState(new Set());
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    const isPendingOrUnsubmitted = user?.verificationStatus === 'pending' || user?.verificationStatus === 'unsubmitted';
 
     // ±2 months navigation bounds (relative to today, computed once)
     const today = useMemo(() => new Date(), []);
@@ -201,6 +203,24 @@ export default function StudentDashboard() {
         setSelectedEvent(null);
         setSelectedIndex(null);
     };
+
+    if (isPendingOrUnsubmitted) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh] text-center max-w-md mx-auto animate-[fade-in-up_0.5s_ease-out]">
+                <div className="w-20 h-20 bg-yellow-50 text-yellow-500 rounded-full flex items-center justify-center mb-6 shadow-sm border border-yellow-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
+                    <AlertTriangle size={36} strokeWidth={1.5} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+                    {user?.verificationStatus === 'unsubmitted' ? 'Verification Required' : 'Account Under Review'}
+                </h2>
+                <p className="text-slate-500 dark:text-slate-300 mb-8 leading-relaxed">
+                    {user?.verificationStatus === 'unsubmitted'
+                        ? 'You must send a verification request from the "Verify Yourself" tab. Once verified by the TPC, you will be able to access your dashboard timeline.'
+                        : 'Your student profile is currently being verified by the Training and Placement Cell. Access to your dashboard timeline will be granted once verified.'}
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-[fade-in-up_0.5s_ease-out]">

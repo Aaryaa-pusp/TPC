@@ -9,7 +9,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Briefcase, Megaphone, MonitorPlay,
-    Calendar as CalendarIcon, CheckCircle2, ExternalLink, Clock, MapPin, Loader2
+    Calendar as CalendarIcon, CheckCircle2, ExternalLink, Clock, MapPin, Loader2, AlertTriangle
 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -78,6 +78,8 @@ const StudentCalendar = () => {
     const [applyingId, setApplyingId] = useState(null);
     const [applySuccess, setApplySuccess] = useState({});
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    const isPendingOrUnsubmitted = user?.verificationStatus === 'pending' || user?.verificationStatus === 'unsubmitted';
 
     // ±2 months navigation bounds (relative to today, computed once)
     const today = useMemo(() => new Date(), []);
@@ -224,6 +226,24 @@ const StudentCalendar = () => {
     };
 
     // ─── Render ───────────────────────────────────────────────────
+    if (isPendingOrUnsubmitted) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh] text-center max-w-md mx-auto animate-[fade-in-up_0.5s_ease-out]">
+                <div className="w-20 h-20 bg-yellow-50 text-yellow-500 rounded-full flex items-center justify-center mb-6 shadow-sm border border-yellow-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
+                    <AlertTriangle size={36} strokeWidth={1.5} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+                    {user?.verificationStatus === 'unsubmitted' ? 'Verification Required' : 'Account Under Review'}
+                </h2>
+                <p className="text-slate-500 dark:text-slate-300 mb-8 leading-relaxed">
+                    {user?.verificationStatus === 'unsubmitted'
+                        ? 'You must send a verification request from the "Verify Yourself" tab. Once verified by the TPC, you will be able to view and apply to events on the placement calendar.'
+                        : 'Your student profile is currently being verified by the Training and Placement Cell. Access to the placement calendar and applications will be granted once verified.'}
+                </p>
+            </div>
+        );
+    }
+
     if (loading) return (
         <div className="flex items-center justify-center h-[70vh]">
             <div className="flex flex-col items-center gap-3 text-slate-500">

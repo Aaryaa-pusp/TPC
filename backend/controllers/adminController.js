@@ -85,7 +85,7 @@ exports.assignAdminPower = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
     try {
-        const { title, description, date, startDate, endDate, deadline, type, targetBranches, links, companyEmail } = req.body;
+        const { title, description, date, startDate, endDate, deadline, type, targetPrograms, targetBranches, targetYears, links, companyEmail } = req.body;
 
         let mappedCompany = null;
         if (companyEmail) {
@@ -105,7 +105,9 @@ exports.createEvent = async (req, res) => {
             startDate: startDate || date,
             endDate: finalEndDate,
             type,
-            targetBranches,
+            targetPrograms: targetPrograms || [],
+            targetBranches: targetBranches || [],
+            targetYears: targetYears || [],
             deadline: deadline || finalEndDate,
             links: links || [],
             createdBy: req.user.userId,
@@ -149,6 +151,43 @@ exports.deleteEvent = async (req, res) => {
     }
 };
 
+exports.updateEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, startDate, endDate, deadline, type, targetPrograms, targetBranches, targetYears, links, companyEmail } = req.body;
+
+        const finalEndDate = endDate || deadline || startDate;
+
+        let companyRef;
+        if (companyEmail) {
+            const company = await Company.findOne({ email: companyEmail });
+            if (!company) return res.status(404).json({ message: 'Company email not found.' });
+            companyRef = company._id;
+        }
+
+        const updated = await Event.findByIdAndUpdate(
+            id,
+            {
+                title, description, type,
+                startDate, endDate: finalEndDate,
+                deadline: deadline || finalEndDate,
+                targetPrograms: targetPrograms || [],
+                targetBranches: targetBranches || [],
+                targetYears: targetYears || [],
+                links: links || [],
+                ...(companyRef && { companyRef }),
+            },
+            { new: true }
+        );
+
+        if (!updated) return res.status(404).json({ message: 'Event not found' });
+        res.status(200).json({ message: 'Event updated', event: updated });
+    } catch (err) {
+        console.error('updateEvent Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.getAnnouncements = async (req, res) => {
     try {
         const raw = await Announcement.find()
@@ -167,12 +206,13 @@ exports.getAnnouncements = async (req, res) => {
 
 exports.createAnnouncement = async (req, res) => {
     try {
-        const { title, content, targetAudience, targetBranches } = req.body;
+        const { title, content, targetPrograms, targetBranches, targetYears } = req.body;
         const newAnnouncement = await Announcement.create({
             title,
             content,
-            targetAudience,
-            targetBranches,
+            targetPrograms: targetPrograms || [],
+            targetBranches: targetBranches || [],
+            targetYears: targetYears || [],
             createdBy: req.user.userId
         });
         res.status(201).json({ message: 'Announcement created', announcement: newAnnouncement });
@@ -184,7 +224,7 @@ exports.createAnnouncement = async (req, res) => {
 exports.updateAnnouncement = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, targetAudience, targetBranches } = req.body;
+        const { title, content, targetPrograms, targetBranches, targetYears } = req.body;
         const now = new Date();
 
         const updatedAnnouncement = await Announcement.findByIdAndUpdate(
@@ -192,8 +232,9 @@ exports.updateAnnouncement = async (req, res) => {
             {
                 ...(title !== undefined && { title }),
                 ...(content !== undefined && { content }),
-                ...(targetAudience !== undefined && { targetAudience }),
+                ...(targetPrograms !== undefined && { targetPrograms }),
                 ...(targetBranches !== undefined && { targetBranches }),
+                ...(targetYears !== undefined && { targetYears }),
                 isEdited: true,
                 editedAt: now,
             },

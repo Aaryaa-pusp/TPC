@@ -16,6 +16,7 @@ router.post('/assign-power', checkAdminRole(['super_admin', 'announcement_admin'
 // Events Routes
 router.get('/events', checkAdminRole(['super_admin', 'student_admin']), adminController.getEvents);
 router.post('/events', checkAdminRole(['super_admin', 'student_admin']), adminController.createEvent);
+router.put('/events/:id', checkAdminRole(['super_admin', 'student_admin']), adminController.updateEvent);
 router.delete('/events/:id', checkAdminRole(['super_admin', 'student_admin']), adminController.deleteEvent);
 
 // Announcements Routes

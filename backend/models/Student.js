@@ -24,6 +24,10 @@ const studentSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    currentYearOfStudy: {
+        type: String,
+        enum: ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'],
+    },
     institute: {
         type: String,
         default: 'IIT Patna',
@@ -46,6 +50,8 @@ const studentSchema = new mongoose.Schema({
         default: 'unsubmitted'
     }
 });
+
+studentSchema.index({ program: 1, department: 1, currentYearOfStudy: 1 });
 
 const Student = User.discriminator('student', studentSchema);
 

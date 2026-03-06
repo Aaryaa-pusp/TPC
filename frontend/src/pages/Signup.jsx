@@ -23,6 +23,7 @@ export default function Signup() {
     const [department, setDepartment] = useState('');
     const [program, setProgram] = useState('B.Tech');
     const [graduationYear, setGraduationYear] = useState('');
+    const [currentYearOfStudy, setCurrentYearOfStudy] = useState('');
 
     // Company Fields
     const [companyName, setCompanyName] = useState('');
@@ -49,7 +50,7 @@ export default function Signup() {
         let payload = { email, role };
 
         if (role === 'student') {
-            payload = { ...payload, fullName, rollNumber, department, program, graduationYear: Number(graduationYear) };
+            payload = { ...payload, fullName, rollNumber, department, program, graduationYear: Number(graduationYear), currentYearOfStudy };
         } else if (role === 'company') {
             payload = { ...payload, companyName, companyEmail, companyWebsite, HRContactName, HRContactEmail };
         } else if (role === 'admin') {
@@ -146,6 +147,14 @@ export default function Signup() {
                                         </select>
                                         <input required type="number" placeholder="Grad Year" value={graduationYear} onChange={e => setGraduationYear(e.target.value)} className={inputStyle} />
                                     </div>
+                                    <select required value={currentYearOfStudy} onChange={e => setCurrentYearOfStudy(e.target.value)} className={inputStyle}>
+                                        <option value="" disabled>Select Current Year of Study</option>
+                                        <option value="1st Year">1st Year</option>
+                                        <option value="2nd Year">2nd Year</option>
+                                        <option value="3rd Year">3rd Year</option>
+                                        <option value="4th Year">4th Year</option>
+                                        <option value="5th Year">5th Year</option>
+                                    </select>
                                 </div>
                             )}
 

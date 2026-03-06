@@ -25,9 +25,15 @@ const eventSchema = new mongoose.Schema({
         enum: ['internship', 'placement_drive', 'workshop'],
         required: true,
     },
+    targetPrograms: [{
+        type: String,
+    }],
     targetBranches: [{
         type: String,
         required: true,
+    }],
+    targetYears: [{
+        type: String,
     }],
     deadline: {
         type: Date,
@@ -63,6 +69,12 @@ eventSchema.pre('save', function (next) {
         next();
     }
 });
+
+// Compound index for segmenting events and filtering by date/type
+eventSchema.index({ type: 1, startDate: -1 });
+eventSchema.index({ targetPrograms: 1 });
+eventSchema.index({ targetBranches: 1 });
+eventSchema.index({ targetYears: 1 });
 
 const Event = mongoose.model('Event', eventSchema);
 

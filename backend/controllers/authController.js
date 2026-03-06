@@ -29,8 +29,8 @@ exports.signup = async (req, res) => {
 
         // --- Role Specific Validation ---
         if (role === 'student') {
-            const { fullName, rollNumber, department, program, graduationYear } = rest;
-            if (!fullName || !rollNumber || !department || !program || !graduationYear) {
+            const { fullName, rollNumber, department, program, graduationYear, currentYearOfStudy } = rest;
+            if (!fullName || !rollNumber || !department || !program || !graduationYear || !currentYearOfStudy) {
                 return res.status(400).json({ message: 'Missing required student fields' });
             }
             const existingStudent = await Student.findOne({ rollNumber });
@@ -73,6 +73,7 @@ exports.signup = async (req, res) => {
                 department: rest.department,
                 program: rest.program,
                 graduationYear: rest.graduationYear,
+                currentYearOfStudy: rest.currentYearOfStudy,
                 institute: rest.institute || 'IIT Patna',
                 phoneNumber: rest.phoneNumber,
             });

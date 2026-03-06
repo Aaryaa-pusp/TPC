@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Megaphone, Clock, ChevronDown, ChevronUp, Bell, Search, BookOpen, Briefcase, MonitorPlay, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Megaphone, Clock, ChevronDown, ChevronUp, Bell, Search, BookOpen, Briefcase, MonitorPlay, AlertCircle, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 const TYPE_CONFIG = {
@@ -27,7 +27,9 @@ export default function StudentAnnouncements() {
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 10; // Changed from 5 to 10 as per instruction
+    const ITEMS_PER_PAGE = 5;
+
+    const isPendingOrUnsubmitted = user?.verificationStatus === 'pending' || user?.verificationStatus === 'unsubmitted';
 
     useEffect(() => {
         if (token && user) fetchAnnouncements();
@@ -93,6 +95,24 @@ export default function StudentAnnouncements() {
             <p className="font-medium">{error}</p>
         </div>
     );
+
+    if (isPendingOrUnsubmitted) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[70vh] text-center max-w-md mx-auto animate-[fade-in-up_0.5s_ease-out]">
+                <div className="w-20 h-20 bg-yellow-50 text-yellow-500 rounded-full flex items-center justify-center mb-6 shadow-sm border border-yellow-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900">
+                    <AlertTriangle size={36} strokeWidth={1.5} />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+                    {user?.verificationStatus === 'unsubmitted' ? 'Verification Required' : 'Account Under Review'}
+                </h2>
+                <p className="text-slate-500 dark:text-slate-300 mb-8 leading-relaxed">
+                    {user?.verificationStatus === 'unsubmitted'
+                        ? 'You must send a verification request from the "Verify Yourself" tab. Once verified by the TPC, you will be able to access your branch announcements.'
+                        : 'Your student profile is currently being verified by the Training and Placement Cell. Access to your branch announcements will be granted once verified.'}
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-[fade-in-up_0.5s_ease-out]">
@@ -255,6 +275,29 @@ export default function StudentAnnouncements() {
                             );
                         })}
                     </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            >
+                                <ChevronLeft size={16} /> Previous
+                            </button>
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            >
+                                Next <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
         </div>

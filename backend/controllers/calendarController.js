@@ -3,11 +3,52 @@ const Announcement = require('../models/Announcement');
 
 exports.getUnifiedCalendar = async (req, res) => {
     try {
-        // Fetch all events and all announcements — no branch filtering here,
-        // because announcements with empty targetBranches mean "all branches".
+        const studentId = req.user.userId;
+        const Student = require('../models/Student');
+        const student = await Student.findById(studentId);
+
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found.' });
+        }
+
+        const eventQuery = { $and: [] };
+        const announcementQuery = { $and: [] };
+
+        const targetBranchesRegex = [/^all$/i];
+        if (student.department) {
+            targetBranchesRegex.push(new RegExp(`^${student.department}$`, 'i'));
+        }
+
+        const branchCondition = {
+            $or: [
+                { targetBranches: { $size: 0 } },
+                { targetBranches: { $in: targetBranchesRegex } }
+            ]
+        };
+        eventQuery.$and.push(branchCondition);
+        announcementQuery.$and.push(branchCondition);
+
+        const programCondition = student.program ? {
+            $or: [
+                { targetPrograms: { $size: 0 } },
+                { targetPrograms: { $in: [student.program] } }
+            ]
+        } : { targetPrograms: { $size: 0 } };
+        eventQuery.$and.push(programCondition);
+        announcementQuery.$and.push(programCondition);
+
+        const yearCondition = student.currentYearOfStudy ? {
+            $or: [
+                { targetYears: { $size: 0 } },
+                { targetYears: { $in: [student.currentYearOfStudy] } }
+            ]
+        } : { targetYears: { $size: 0 } };
+        eventQuery.$and.push(yearCondition);
+        announcementQuery.$and.push(yearCondition);
+
         const [events, rawAnnouncements] = await Promise.all([
-            Event.find({}).populate('createdBy', 'fullName email'),
-            Announcement.find({}).populate('createdBy', 'fullName email')
+            Event.find(eventQuery).populate('createdBy', 'fullName email'),
+            Announcement.find(announcementQuery).populate('createdBy', 'fullName email')
         ]);
 
         // Sort announcements by effective date = max(editedAt, createdAt)

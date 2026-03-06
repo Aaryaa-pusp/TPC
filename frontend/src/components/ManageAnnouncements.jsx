@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Send, Trash2, Pencil, X, Clock } from 'lucide-react';
+import { Bell, Send, Trash2, Pencil, X, Clock, Search, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 
 const BRANCHES = ['CSE', 'EE', 'ME', 'MME'];
+const PROGRAMS = ['B.Tech', 'M.Tech', 'M.Sc', 'PhD'];
+const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
 
-const EMPTY_FORM = { title: '', content: '', targetAudience: 'all', targetBranches: [] };
+const EMPTY_FORM = { title: '', content: '', targetPrograms: [], targetBranches: [], targetYears: [] };
 
 function formatDateTime(iso) {
     if (!iso) return '—';
@@ -16,17 +18,17 @@ function formatDateTime(iso) {
     });
 }
 
-// Reusable checkbox group for branches
-function BranchCheckboxes({ value, onChange }) {
-    const allChecked = value.length === 0; // empty = all branches
+// Reusable checkbox group for targets
+function TargetCheckboxes({ options, value, onChange }) {
+    const allChecked = value.length === 0;
 
-    const toggle = (branch) => {
-        if (branch === 'ALL') {
-            onChange([]); // empty = broadcast to all
+    const toggle = (opt) => {
+        if (opt === 'ALL') {
+            onChange([]);
         } else {
-            const next = value.includes(branch)
-                ? value.filter(b => b !== branch)
-                : [...value, branch];
+            const next = value.includes(opt)
+                ? value.filter(o => o !== opt)
+                : [...value, opt];
             onChange(next);
         }
     };
@@ -39,17 +41,16 @@ function BranchCheckboxes({ value, onChange }) {
 
     return (
         <div className="flex flex-wrap gap-2">
-            {/* All */}
             <label className={checkboxCls(allChecked)}>
                 <input type="checkbox" className="hidden" checked={allChecked} onChange={() => toggle('ALL')} />
                 All
             </label>
-            {BRANCHES.map(b => {
-                const active = value.includes(b);
+            {options.map(opt => {
+                const active = value.includes(opt);
                 return (
-                    <label key={b} className={checkboxCls(active)}>
-                        <input type="checkbox" className="hidden" checked={active} onChange={() => toggle(b)} />
-                        {b}
+                    <label key={opt} className={checkboxCls(active)}>
+                        <input type="checkbox" className="hidden" checked={active} onChange={() => toggle(opt)} />
+                        {opt}
                     </label>
                 );
             })}
@@ -62,6 +63,38 @@ export default function ManageAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [formData, setFormData] = useState(EMPTY_FORM);
     const [message, setMessage] = useState('');
+
+    // Search and Filter State
+    const [search, setSearch] = useState('');
+    const [filterProgram, setFilterProgram] = useState('ALL');
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
+
+    // Reset pagination on search/filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterProgram]);
+
+    // Derived Data
+    const filteredAnnouncements = announcements.filter(a => {
+        const body = a.content || '';
+        const title = a.title || '';
+        const matchesSearch = !search ||
+            title.toLowerCase().includes(search.toLowerCase()) ||
+            body.toLowerCase().includes(search.toLowerCase());
+
+        const matchesProgram = filterProgram === 'ALL' ||
+            (a.targetPrograms && a.targetPrograms.includes(filterProgram)) ||
+            (!a.targetPrograms?.length); // If it targets all programs, show it
+
+        return matchesSearch && matchesProgram;
+    });
+
+    const totalPages = Math.ceil(filteredAnnouncements.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedAnnouncements = filteredAnnouncements.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     // Edit state
     const [editingAnn, setEditingAnn] = useState(null);
@@ -90,8 +123,9 @@ export default function ManageAnnouncements() {
             const payload = {
                 title: formData.title,
                 content: formData.content,
-                targetAudience: formData.targetAudience,
-                targetBranches: formData.targetBranches, // already an array
+                targetPrograms: formData.targetPrograms,
+                targetBranches: formData.targetBranches,
+                targetYears: formData.targetYears,
             };
             await axios.post('http://localhost:5000/api/admin/announcements', payload, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -122,8 +156,9 @@ export default function ManageAnnouncements() {
         setEditForm({
             title: ann.title,
             content: ann.content,
-            targetAudience: ann.targetAudience || 'all',
+            targetPrograms: ann.targetPrograms || [],
             targetBranches: ann.targetBranches || [],
+            targetYears: ann.targetYears || [],
         });
         setEditMessage('');
     };
@@ -141,8 +176,9 @@ export default function ManageAnnouncements() {
             const payload = {
                 title: editForm.title,
                 content: editForm.content,
-                targetAudience: editForm.targetAudience,
-                targetBranches: editForm.targetBranches, // already an array
+                targetPrograms: editForm.targetPrograms,
+                targetBranches: editForm.targetBranches,
+                targetYears: editForm.targetYears,
             };
             await axios.put(`http://localhost:5000/api/admin/announcements/${editingAnn._id}`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -196,30 +232,32 @@ export default function ManageAnnouncements() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1 dark:text-slate-200">Target Audience</label>
-                                    <select
-                                        value={editForm.targetAudience}
-                                        onChange={e => setEditForm({ ...editForm, targetAudience: e.target.value })}
-                                        className="w-full px-4 py-2 border rounded-xl border-slate-200 bg-white text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/80 focus:outline-none transition-all dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-100"
-                                    >
-                                        <option value="all">All Students</option>
-                                        <option value="btech">B.Tech</option>
-                                        <option value="mtech">M.Tech</option>
-                                        <option value="msc">M.Sc</option>
-                                        <option value="phd">PhD</option>
-                                    </select>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Programs</label>
+                                    <TargetCheckboxes
+                                        options={PROGRAMS}
+                                        value={editForm.targetPrograms}
+                                        onChange={v => setEditForm({ ...editForm, targetPrograms: v })}
+                                    />
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Branches</label>
-                                <BranchCheckboxes
-                                    value={editForm.targetBranches}
-                                    onChange={v => setEditForm({ ...editForm, targetBranches: v })}
-                                />
-                                <p className="text-xs text-slate-400 mt-1.5 dark:text-slate-500">
-                                    Select <span className="font-semibold">All</span> to broadcast to every branch.
-                                </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Years</label>
+                                    <TargetCheckboxes
+                                        options={YEARS}
+                                        value={editForm.targetYears}
+                                        onChange={v => setEditForm({ ...editForm, targetYears: v })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Branches</label>
+                                    <TargetCheckboxes
+                                        options={BRANCHES}
+                                        value={editForm.targetBranches}
+                                        onChange={v => setEditForm({ ...editForm, targetBranches: v })}
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -276,30 +314,32 @@ export default function ManageAnnouncements() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-1 dark:text-slate-200">Target Audience</label>
-                            <select
-                                value={formData.targetAudience}
-                                onChange={e => setFormData({ ...formData, targetAudience: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-xl border-slate-200 bg-white text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-100/80 focus:outline-none transition-all dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-100"
-                            >
-                                <option value="all">All Students</option>
-                                <option value="btech">B.Tech</option>
-                                <option value="mtech">M.Tech</option>
-                                <option value="msc">M.Sc</option>
-                                <option value="phd">PhD</option>
-                            </select>
+                            <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Programs</label>
+                            <TargetCheckboxes
+                                options={PROGRAMS}
+                                value={formData.targetPrograms}
+                                onChange={v => setFormData({ ...formData, targetPrograms: v })}
+                            />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Branches</label>
-                        <BranchCheckboxes
-                            value={formData.targetBranches}
-                            onChange={v => setFormData({ ...formData, targetBranches: v })}
-                        />
-                        <p className="text-xs text-slate-400 mt-1.5 dark:text-slate-500">
-                            Select <span className="font-semibold">All</span> to broadcast to every branch.
-                        </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Years</label>
+                            <TargetCheckboxes
+                                options={YEARS}
+                                value={formData.targetYears}
+                                onChange={v => setFormData({ ...formData, targetYears: v })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2 dark:text-slate-200">Target Branches</label>
+                            <TargetCheckboxes
+                                options={BRANCHES}
+                                value={formData.targetBranches}
+                                onChange={v => setFormData({ ...formData, targetBranches: v })}
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -332,66 +372,122 @@ export default function ManageAnnouncements() {
 
             {/* ── Announcements List ── */}
             <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-slate-100 dark:bg-slate-900/90 dark:border-slate-700/70 dark:shadow-[0_18px_36px_-20px_rgba(2,6,23,0.9)]">
-                <h3 className="text-lg font-bold text-slate-800 mb-4 dark:text-slate-100">Recent Announcements</h3>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex-shrink-0">Recent Announcements</h3>
+
+                    {/* Search & Filters */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                        <div className="relative w-full sm:w-64 flex-shrink-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                            <input
+                                type="text"
+                                placeholder="Search announcements..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:placeholder:text-slate-500"
+                            />
+                        </div>
+
+                        <div className="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto overflow-x-auto hide-scrollbar dark:bg-slate-800">
+                            {['ALL', ...PROGRAMS].map(prog => (
+                                <button
+                                    key={prog}
+                                    onClick={() => setFilterProgram(prog)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${filterProgram === prog ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
+                                >
+                                    {prog}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 <div className="space-y-4">
-                    {announcements.map(ann => (
-                        <div key={ann._id} className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group dark:bg-slate-800/80 dark:border-slate-700">
+                    {filteredAnnouncements.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                            <BookOpen size={40} className="mb-3 opacity-40" />
+                            <p className="font-medium">No announcements found matching your criteria.</p>
+                        </div>
+                    ) : (
+                        paginatedAnnouncements.map(ann => (
+                            <div key={ann._id} className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group dark:bg-slate-800/80 dark:border-slate-700">
 
-                            {/* Action buttons */}
-                            <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => openEdit(ann)}
-                                    title="Edit"
-                                    className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
-                                >
-                                    <Pencil size={15} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(ann._id)}
-                                    title="Delete"
-                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                                >
-                                    <Trash2 size={15} />
-                                </button>
-                            </div>
+                                {/* Action buttons */}
+                                <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => openEdit(ann)}
+                                        title="Edit"
+                                        className="p-1.5 rounded-lg text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors dark:hover:bg-blue-900/30 dark:hover:text-blue-400"
+                                    >
+                                        <Pencil size={15} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(ann._id)}
+                                        title="Delete"
+                                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                    >
+                                        <Trash2 size={15} />
+                                    </button>
+                                </div>
 
-                            {/* Title row */}
-                            <div className="flex items-center gap-2 mb-1 pr-16">
-                                <h4 className="font-bold text-slate-900 dark:text-slate-100">{ann.title}</h4>
-                                {ann.isEdited && (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800/60">
-                                        Edited
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Meta row */}
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                    To: <span className="font-semibold">{ann.targetAudience.toUpperCase()}</span>
-                                    {ann.targetBranches.length > 0
-                                        ? ` (${ann.targetBranches.join(', ')})`
-                                        : ' (All branches)'}
-                                    {' · '}By {ann.createdBy?.fullName || 'Admin'}
-                                </p>
-                                <span className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
-                                    <Clock size={11} />
-                                    {formatDateTime(ann.createdAt)}
-                                    {ann.isEdited && ann.editedAt && (
-                                        <span className="ml-1 text-amber-500 dark:text-amber-400">
-                                            · edited {formatDateTime(ann.editedAt)}
+                                {/* Title row */}
+                                <div className="flex items-center gap-2 mb-1 pr-16">
+                                    <h4 className="font-bold text-slate-900 dark:text-slate-100">{ann.title}</h4>
+                                    {ann.isEdited && (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800/60">
+                                            Edited
                                         </span>
                                     )}
-                                </span>
-                            </div>
+                                </div>
 
-                            <p className="text-slate-700 text-sm whitespace-pre-wrap dark:text-slate-300">{ann.content}</p>
-                        </div>
-                    ))}
-                    {announcements.length === 0 && (
-                        <p className="text-slate-500 text-center py-4 dark:text-slate-400">No announcements posted yet.</p>
-                    )}
+                                {/* Meta row */}
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        To: <span className="font-semibold">
+                                            {ann.targetPrograms?.length ? ann.targetPrograms.join(', ') : 'All Programs'}
+                                        </span>
+                                        {', '}{ann.targetYears?.length ? ann.targetYears.join(', ') : 'All Years'}
+                                        {', '}{ann.targetBranches?.length ? ann.targetBranches.join(', ') : 'All Branches'}
+                                        {' · '}By {ann.createdBy?.fullName || 'Admin'}
+                                    </p>
+                                    <span className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                                        <Clock size={11} />
+                                        {formatDateTime(ann.createdAt)}
+                                        {ann.isEdited && ann.editedAt && (
+                                            <span className="ml-1 text-amber-500 dark:text-amber-400">
+                                                · edited {formatDateTime(ann.editedAt)}
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+
+                                <p className="text-slate-700 text-sm whitespace-pre-wrap dark:text-slate-300">{ann.content}</p>
+                            </div>
+                        )))}
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-700/50 pt-6 mt-6">
+                        <button
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            <ChevronLeft size={16} /> Previous
+                        </button>
+                        <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            Next <ChevronRight size={16} />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
