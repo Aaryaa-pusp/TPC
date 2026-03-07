@@ -534,8 +534,8 @@ export default function StudentCalendarUpdate() {
                                 <button key={t}
                                     onClick={() => { setFilterType(t); setCurrentPage(1); }}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${filterType === t
-                                            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                                        ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
                                         }`}>
                                     {t === 'ALL' ? 'All' : EVENT_TYPE_OPTIONS.find(o => o.value === t)?.label}
                                 </button>
@@ -564,8 +564,8 @@ export default function StudentCalendarUpdate() {
                                     <div
                                         key={ev._id}
                                         className={`p-5 border rounded-xl relative group flex flex-col transition-all ${isPast
-                                                ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
-                                                : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/40 shadow-sm hover:shadow-md'
+                                            ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-70 hover:opacity-100'
+                                            : 'bg-white dark:bg-slate-900 border-indigo-100 dark:border-indigo-900/40 shadow-sm hover:shadow-md'
                                             }`}
                                     >
                                         {/* Action buttons */}

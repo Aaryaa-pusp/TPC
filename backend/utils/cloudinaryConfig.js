@@ -10,7 +10,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath, folder = "tpc-student-ids") => {
     try {
         console.log("---- DEBUG: Entering uploadOnCloudinary ----");
         console.log("DEBUG: Local file path received ->", localFilePath);
@@ -23,7 +23,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         console.log("DEBUG: Initiating cloudinary.uploader.upload...");
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "image", // 'image' allows inline PDF viewing via Cloudinary
-            folder: "tpc-student-ids"
+            folder
         });
 
         const ext = path.extname(localFilePath).toLowerCase();

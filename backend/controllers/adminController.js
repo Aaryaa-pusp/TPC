@@ -26,7 +26,7 @@ exports.verifyCompany = async (req, res) => {
         const company = await Company.findByIdAndUpdate(
             companyId,
             { verificationStatus: status },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!company) {
@@ -284,7 +284,7 @@ exports.verifyStudentData = async (req, res) => {
         const student = await Student.findByIdAndUpdate(
             studentId,
             { verificationStatus: status },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!student) {
@@ -323,7 +323,7 @@ exports.updateAdminRole = async (req, res) => {
         const updatedAdmin = await Admin.findByIdAndUpdate(
             adminId,
             adminUpdates,
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
 
         if (!updatedAdmin) {

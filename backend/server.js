@@ -18,6 +18,7 @@ const companyRoutes = require('./routes/companyRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const developerRoutes = require('./routes/developerRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const pastRecruiterRoutes = require('./routes/pastRecruiterRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -25,6 +26,7 @@ app.use('/api/company', companyRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/developers', developerRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/past-recruiters', pastRecruiterRoutes);
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', message: 'API is running' });

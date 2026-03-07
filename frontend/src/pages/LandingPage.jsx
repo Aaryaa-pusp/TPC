@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, MapPin, Mail, Phone, ExternalLink, LayoutDashboard } from 'lucide-react';
+import { BookOpen, MapPin, Mail, Phone, ExternalLink, LayoutDashboard, Home, Briefcase, Code, BarChart2, Menu, X } from 'lucide-react';
 import HomePageCharts from '../components/HomePageCharts';
 import logo from '../assets/logo.png';
 import DevelopersRibbon from '../components/DevelopersRibbon';
@@ -8,27 +8,45 @@ import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
 export default function LandingPage() {
-    const { user } = useAuth();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { user, token, logout } = useAuth();
     return (
         <div className="min-h-screen flex flex-col font-sans bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
             {/* Navbar */}
             <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 transition-all duration-300 dark:bg-slate-950/85 dark:border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-20 items-center">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-white rounded-xl p-1.5 flex items-center justify-center shadow-sm ring-1 ring-blue-100 dark:bg-slate-900 dark:ring-slate-700">
+                    <div className="flex justify-between h-14 items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white rounded-lg p-1 flex items-center justify-center shadow-sm ring-1 ring-blue-100 dark:bg-slate-900 dark:ring-slate-700">
                                 <img src={logo} alt="IIT Patna logo" className="w-full h-full object-contain" />
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-xl font-bold text-gray-900 tracking-tight dark:text-slate-100">Training & Placement</span>
-                                <span className="text-sm font-medium text-blue-600">IIT Patna</span>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-lg font-bold text-gray-900 tracking-tight dark:text-slate-100 hidden lg:block whitespace-nowrap">Training & Placement</span>
+                                <span className="text-lg font-bold text-gray-900 tracking-tight dark:text-slate-100 lg:hidden">TPC</span>
+                                <span className="text-xs font-medium text-blue-600">IIT Patna</span>
                             </div>
                         </div>
-                        <div className="hidden md:flex items-center space-x-8">
-                            <a href="#" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Home</a>
-                            <Link to="/developers" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Developers</Link>
-                            <a href="#stats" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Statistics</a>
-                            <a href="#contact" className="text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300">Contact</a>
+                        <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+                            <a href="#" className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300 group" title="Home">
+                                <Home className="w-5 h-5 lg:hidden" />
+                                <span className="hidden lg:block">Home</span>
+                            </a>
+                            <Link to="/past-recruiters" className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300 group" title="Past Recruiters">
+                                <Briefcase className="w-5 h-5 lg:hidden" />
+                                <span className="hidden lg:block">Past Recruiters</span>
+                            </Link>
+                            <Link to="/developers" className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300 group" title="Developers">
+                                <Code className="w-5 h-5 lg:hidden" />
+                                <span className="hidden lg:block">Developers</span>
+                            </Link>
+                            <a href="#stats" className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300 group" title="Statistics">
+                                <BarChart2 className="w-5 h-5 lg:hidden" />
+                                <span className="hidden lg:block">Statistics</span>
+                            </a>
+                            <a href="#contact" className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 font-medium transition-colors dark:text-slate-300 group" title="Contact">
+                                <Phone className="w-5 h-5 lg:hidden" />
+                                <span className="hidden lg:block">Contact</span>
+                            </a>
                             <div className="h-6 w-px bg-gray-200 dark:bg-slate-700"></div>
                             <ThemeToggle />
                             {user ? (
@@ -45,11 +63,51 @@ export default function LandingPage() {
                                 </>
                             )}
                         </div>
-                        <div className="md:hidden">
+                        <div className="md:hidden flex items-center gap-4">
                             <ThemeToggle />
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="text-gray-600 hover:text-blue-600 focus:outline-none dark:text-slate-300"
+                            >
+                                {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {isMobileMenuOpen && (
+                    <div className="md:hidden bg-white border-t border-gray-100 shadow-xl dark:bg-slate-950 dark:border-slate-800">
+                        <div className="px-4 pt-4 pb-6 space-y-4">
+                            <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block text-gray-600 hover:text-blue-600 font-medium dark:text-slate-300">Home</a>
+                            <Link to="/past-recruiters" onClick={() => setIsMobileMenuOpen(false)} className="block text-gray-600 hover:text-blue-600 font-medium dark:text-slate-300">Past Recruiters</Link>
+                            <Link to="/developers" onClick={() => setIsMobileMenuOpen(false)} className="block text-gray-600 hover:text-blue-600 font-medium dark:text-slate-300">Developers</Link>
+                            <a href="#stats" onClick={() => setIsMobileMenuOpen(false)} className="block text-gray-600 hover:text-blue-600 font-medium dark:text-slate-300">Statistics</a>
+                            <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className="block text-gray-600 hover:text-blue-600 font-medium dark:text-slate-300">Contact</a>
+                            <div className="w-full h-px bg-gray-200 dark:bg-slate-800 my-4"></div>
+                            {token ? (
+                                <>
+                                    <Link to="/dashboard" className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                                        Go to Dashboard
+                                    </Link>
+                                    <button
+                                        onClick={logout}
+                                        className="block w-full text-center text-red-500 font-semibold hover:bg-red-50 px-6 py-3 rounded-lg transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="block text-blue-600 font-semibold mb-4 text-center">Log in</Link>
+                                    <Link to="/login" className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                                        Portal Access
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </nav>
 
             {/* Hero Section - Light Mode Editorial */}

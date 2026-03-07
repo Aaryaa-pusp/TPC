@@ -12,6 +12,16 @@ const AUTO_TARGET_SELECTOR = [
   'section[class*="rounded"][class*="shadow"]',
   'article[class*="rounded"][class*="shadow"]'
 ].join(',');
+const INTERACTIVE_CURSOR_SELECTOR = [
+  'a',
+  'button',
+  '[role="button"]',
+  'input',
+  'textarea',
+  'select',
+  'label',
+  '[data-cursor-glow]'
+].join(',');
 
 const markGlowTargets = (root) => {
   if (!root || typeof root.querySelectorAll !== 'function') return;
@@ -31,6 +41,41 @@ const getGlowTarget = (node) => {
 export default function useCursorGlow() {
   useEffect(() => {
     markGlowTargets(document);
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    const cursorAura = hasFinePointer ? document.createElement('div') : null;
+    const cursorCore = hasFinePointer ? document.createElement('div') : null;
+
+    const isDarkThemeEnabled = () => {
+      const root = document.documentElement;
+      const body = document.body;
+      return (
+        root.classList.contains('dark') ||
+        body.classList.contains('dark') ||
+        root.getAttribute('data-theme') === 'dark' ||
+        body.getAttribute('data-theme') === 'dark'
+      );
+    };
+
+    const syncCursorAuraVisibility = () => {
+      if (!cursorAura || !cursorCore) return;
+      if (isDarkThemeEnabled()) {
+        document.body.classList.add('cursor-glow-theme-active');
+        cursorAura.classList.add('is-visible');
+        cursorCore.classList.add('is-visible');
+        return;
+      }
+      document.body.classList.remove('cursor-glow-theme-active');
+      cursorAura.classList.remove('is-visible', 'is-active');
+      cursorCore.classList.remove('is-visible', 'is-active');
+    };
+
+    if (cursorAura && cursorCore) {
+      cursorAura.className = 'global-cursor-glow';
+      cursorCore.className = 'global-cursor-core';
+      document.body.appendChild(cursorAura);
+      document.body.appendChild(cursorCore);
+      syncCursorAuraVisibility();
+    }
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -46,7 +91,25 @@ export default function useCursorGlow() {
 
     observer.observe(document.body, { childList: true, subtree: true });
 
+    const themeObserver = new MutationObserver(syncCursorAuraVisibility);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+
     const handlePointerMove = (event) => {
+      if (cursorAura && cursorCore && isDarkThemeEnabled()) {
+        const auraHalfSize = 72;
+        const coreHalfSize = 7;
+        cursorAura.style.transform = `translate3d(${event.clientX - auraHalfSize}px, ${event.clientY - auraHalfSize}px, 0)`;
+        cursorCore.style.transform = `translate3d(${event.clientX - coreHalfSize}px, ${event.clientY - coreHalfSize}px, 0)`;
+        cursorAura.classList.add('is-active');
+        cursorCore.classList.add('is-active');
+
+        const isInteractiveTarget = event.target instanceof Element
+          && event.target.closest(INTERACTIVE_CURSOR_SELECTOR);
+        cursorAura.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
+        cursorCore.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
+      }
+
       const target = getGlowTarget(event.target);
       if (!target) return;
       const rect = target.getBoundingClientRect();
@@ -55,6 +118,15 @@ export default function useCursorGlow() {
     };
 
     const handlePointerOut = (event) => {
+      if (cursorAura && cursorCore && !event.relatedTarget) {
+        cursorAura.classList.remove('is-active');
+        cursorAura.classList.remove('is-hover-intent');
+        cursorAura.classList.remove('is-pressed');
+        cursorCore.classList.remove('is-active');
+        cursorCore.classList.remove('is-hover-intent');
+        cursorCore.classList.remove('is-pressed');
+      }
+
       const target = getGlowTarget(event.target);
       if (!target) return;
       const next = event.relatedTarget;
@@ -63,13 +135,35 @@ export default function useCursorGlow() {
       target.style.removeProperty('--cursor-glow-y');
     };
 
+    const handlePointerDown = () => {
+      if (!cursorAura || !cursorCore || !isDarkThemeEnabled()) return;
+      cursorAura.classList.add('is-pressed');
+      cursorCore.classList.add('is-pressed');
+    };
+
+    const handlePointerUp = () => {
+      if (!cursorAura || !cursorCore) return;
+      cursorAura.classList.remove('is-pressed');
+      cursorCore.classList.remove('is-pressed');
+    };
+
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
     window.addEventListener('pointerout', handlePointerOut, { passive: true });
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
+    window.addEventListener('pointercancel', handlePointerUp, { passive: true });
 
     return () => {
       observer.disconnect();
+      themeObserver.disconnect();
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerout', handlePointerOut);
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+      document.body.classList.remove('cursor-glow-theme-active');
+      cursorAura?.remove();
+      cursorCore?.remove();
     };
   }, []);
 }

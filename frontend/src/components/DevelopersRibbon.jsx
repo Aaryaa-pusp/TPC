@@ -14,7 +14,7 @@ const TEAM_MEMBERS = [
         image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
     },
     {
-        name: "Shikhar Yadav", role: "Chief Vibe Officer",
+        name: "Anjney Lawaniya", role: "Chief Vibe Officer",
         image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop"
     },
     {
@@ -22,9 +22,9 @@ const TEAM_MEMBERS = [
         image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop"
     },
     {
-        name: "Anjney Lawaniya", role: "Chief Vibe Officer",
+        name: "Shikhar Yadav", role: "Chief Vibe Officer",
         image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop"
-    }
+    },
 ];
 
 export default function DevelopersRibbon() {

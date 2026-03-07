@@ -87,7 +87,7 @@ exports.submitVerification = async (req, res) => {
         const updatedCompany = await Company.findByIdAndUpdate(
             companyId,
             updateData,
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!updatedCompany) {
@@ -131,7 +131,7 @@ exports.updateProfile = async (req, res) => {
         const updatedCompany = await Company.findByIdAndUpdate(
             companyId,
             updateData,
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         );
 
         res.status(200).json({
