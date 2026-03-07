@@ -78,73 +78,107 @@ export default function useCursorGlow() {
     }
 
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((added) => {
-          if (!(added instanceof Element)) return;
-          if (added.matches(AUTO_TARGET_SELECTOR)) {
-            added.classList.add(GLOW_TARGET_CLASS);
-          }
-          markGlowTargets(added);
+      try {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((added) => {
+            if (!(added instanceof Element)) return;
+            if (added.matches(AUTO_TARGET_SELECTOR)) {
+              added.classList.add(GLOW_TARGET_CLASS);
+            }
+            markGlowTargets(added);
+          });
         });
-      });
+      } catch (err) {
+        console.error('CursorGlow MutationObserver error:', err);
+      }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    try {
+      observer.observe(document.body, { childList: true, subtree: true });
+    } catch (err) {
+      console.error('Failed to observe document.body:', err);
+    }
 
-    const themeObserver = new MutationObserver(syncCursorAuraVisibility);
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+    const themeObserver = new MutationObserver(() => {
+      try {
+        syncCursorAuraVisibility();
+      } catch (err) {
+        console.error('CursorGlow themeObserver sync error:', err);
+      }
+    });
+
+    try {
+      // Only observe documentElement, since that is where the 'dark' and 'data-theme'
+      // attributes are toggled by useTheme.js. Observing body causes an infinite loop
+      // when syncCursorAuraVisibility adds 'cursor-glow-theme-active' to the body classList.
+      themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+    } catch (err) {
+      console.error('Failed to observe theme changes:', err);
+    }
 
     const handlePointerMove = (event) => {
-      if (cursorAura && cursorCore && isDarkThemeEnabled()) {
-        const auraHalfSize = 72;
-        const coreHalfSize = 7;
-        cursorAura.style.transform = `translate3d(${event.clientX - auraHalfSize}px, ${event.clientY - auraHalfSize}px, 0)`;
-        cursorCore.style.transform = `translate3d(${event.clientX - coreHalfSize}px, ${event.clientY - coreHalfSize}px, 0)`;
-        cursorAura.classList.add('is-active');
-        cursorCore.classList.add('is-active');
+      try {
+        if (cursorAura && cursorCore && isDarkThemeEnabled()) {
+          const auraHalfSize = 72;
+          const coreHalfSize = 7;
+          cursorAura.style.transform = `translate3d(${event.clientX - auraHalfSize}px, ${event.clientY - auraHalfSize}px, 0)`;
+          cursorCore.style.transform = `translate3d(${event.clientX - coreHalfSize}px, ${event.clientY - coreHalfSize}px, 0)`;
+          cursorAura.classList.add('is-active');
+          cursorCore.classList.add('is-active');
 
-        const isInteractiveTarget = event.target instanceof Element
-          && event.target.closest(INTERACTIVE_CURSOR_SELECTOR);
-        cursorAura.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
-        cursorCore.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
+          const isInteractiveTarget = event.target instanceof Element
+            && event.target.closest(INTERACTIVE_CURSOR_SELECTOR);
+          cursorAura.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
+          cursorCore.classList.toggle('is-hover-intent', Boolean(isInteractiveTarget));
+        }
+
+        const target = getGlowTarget(event.target);
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        target.style.setProperty('--cursor-glow-x', `${event.clientX - rect.left}px`);
+        target.style.setProperty('--cursor-glow-y', `${event.clientY - rect.top}px`);
+      } catch (err) {
+        // Silently catch to not spam the console on rapid pointer moves, but you can log if needed:
+        // console.error('CursorGlow handlePointerMove error:', err);
       }
-
-      const target = getGlowTarget(event.target);
-      if (!target) return;
-      const rect = target.getBoundingClientRect();
-      target.style.setProperty('--cursor-glow-x', `${event.clientX - rect.left}px`);
-      target.style.setProperty('--cursor-glow-y', `${event.clientY - rect.top}px`);
     };
 
     const handlePointerOut = (event) => {
-      if (cursorAura && cursorCore && !event.relatedTarget) {
-        cursorAura.classList.remove('is-active');
-        cursorAura.classList.remove('is-hover-intent');
-        cursorAura.classList.remove('is-pressed');
-        cursorCore.classList.remove('is-active');
-        cursorCore.classList.remove('is-hover-intent');
-        cursorCore.classList.remove('is-pressed');
-      }
+      try {
+        if (cursorAura && cursorCore && !event.relatedTarget) {
+          cursorAura.classList.remove('is-active', 'is-hover-intent', 'is-pressed');
+          cursorCore.classList.remove('is-active', 'is-hover-intent', 'is-pressed');
+        }
 
-      const target = getGlowTarget(event.target);
-      if (!target) return;
-      const next = event.relatedTarget;
-      if (next instanceof Node && target.contains(next)) return;
-      target.style.removeProperty('--cursor-glow-x');
-      target.style.removeProperty('--cursor-glow-y');
+        const target = getGlowTarget(event.target);
+        if (!target) return;
+        const next = event.relatedTarget;
+        if (next instanceof Node && target.contains(next)) return;
+        target.style.removeProperty('--cursor-glow-x');
+        target.style.removeProperty('--cursor-glow-y');
+      } catch (err) {
+        // Ignore
+      }
     };
 
     const handlePointerDown = () => {
-      if (!cursorAura || !cursorCore || !isDarkThemeEnabled()) return;
-      cursorAura.classList.add('is-pressed');
-      cursorCore.classList.add('is-pressed');
+      try {
+        if (!cursorAura || !cursorCore || !isDarkThemeEnabled()) return;
+        cursorAura.classList.add('is-pressed');
+        cursorCore.classList.add('is-pressed');
+      } catch (err) {
+        // Ignore
+      }
     };
 
     const handlePointerUp = () => {
-      if (!cursorAura || !cursorCore) return;
-      cursorAura.classList.remove('is-pressed');
-      cursorCore.classList.remove('is-pressed');
+      try {
+        if (!cursorAura || !cursorCore) return;
+        cursorAura.classList.remove('is-pressed');
+        cursorCore.classList.remove('is-pressed');
+      } catch (err) {
+        // Ignore
+      }
     };
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
@@ -154,16 +188,20 @@ export default function useCursorGlow() {
     window.addEventListener('pointercancel', handlePointerUp, { passive: true });
 
     return () => {
-      observer.disconnect();
-      themeObserver.disconnect();
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerout', handlePointerOut);
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('pointerup', handlePointerUp);
-      window.removeEventListener('pointercancel', handlePointerUp);
-      document.body.classList.remove('cursor-glow-theme-active');
-      cursorAura?.remove();
-      cursorCore?.remove();
+      try {
+        observer.disconnect();
+        themeObserver.disconnect();
+        window.removeEventListener('pointermove', handlePointerMove);
+        window.removeEventListener('pointerout', handlePointerOut);
+        window.removeEventListener('pointerdown', handlePointerDown);
+        window.removeEventListener('pointerup', handlePointerUp);
+        window.removeEventListener('pointercancel', handlePointerUp);
+        document.body.classList.remove('cursor-glow-theme-active');
+        cursorAura?.remove();
+        cursorCore?.remove();
+      } catch (err) {
+        console.error('CursorGlow cleanup error:', err);
+      }
     };
   }, []);
 }
