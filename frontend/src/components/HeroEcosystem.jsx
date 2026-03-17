@@ -209,7 +209,7 @@ export default function HeroEcosystem({ user }) {
                         </div>
 
                         {/* Overlapping Tech Stack Card */}
-                        <div className="absolute -bottom-8 lg:-bottom-6 right-2 w-[280px] bg-white/95 dark:bg-[#1A2235]/95 backdrop-blur-xl rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] border border-gray-200/60 dark:border-slate-700/60 p-4 z-20">
+                        <div className="absolute -bottom-16 lg:-bottom-20 -right-2 lg:-right-8 w-[280px] bg-white/95 dark:bg-[#1A2235]/95 backdrop-blur-xl rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] border border-gray-200/60 dark:border-slate-700/60 p-4 z-20">
                             <h4 className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wide uppercase">Portal Platform</h4>
                             <div className="flex items-center justify-between px-1">
                                 <div className="flex flex-col items-center gap-1.5 group cursor-default">
