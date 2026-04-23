@@ -159,14 +159,28 @@ exports.getCompanyEvents = async (req, res) => {
     const Event = require('../models/Event');
     try {
         const companyId = req.user.userId;
-        // Fetch events where this company is either the direct creator or was explicitly linked by an Admin
-        const events = await Event.find({
+        const page = parseInt(req.query.page, 10) || 0;
+        const PAGE_SIZE = 6;
+
+        const query = {
             $or: [
                 { createdBy: companyId },
                 { companyRef: companyId }
             ]
+        };
+
+        const total = await Event.countDocuments(query);
+        const events = await Event.find(query)
+            .sort({ createdAt: -1 })
+            .skip(page * PAGE_SIZE)
+            .limit(PAGE_SIZE);
+
+        res.status(200).json({
+            events,
+            total,
+            page,
+            totalPages: Math.ceil(total / PAGE_SIZE),
         });
-        res.status(200).json({ events });
     } catch (err) {
         console.error('getCompanyEvents Error:', err);
         res.status(500).json({ message: 'Internal server error while fetching events' });
@@ -176,7 +190,7 @@ exports.getCompanyEvents = async (req, res) => {
 exports.requestEvent = async (req, res) => {
     const Event = require('../models/Event');
     try {
-        const { title, description, type, targetPrograms, targetBranches, targetYears, links } = req.body;
+        const { title, description, type, targetPrograms, targetBranches, targetYears, links, rounds } = req.body;
         const companyId = req.user.userId;
 
         const newEvent = await Event.create({
@@ -187,6 +201,7 @@ exports.requestEvent = async (req, res) => {
             targetBranches: targetBranches || [],
             targetYears: targetYears || [],
             links: links || [],
+            rounds: rounds || [],
             createdBy: companyId,
             companyRef: companyId,
             status: 'pending_announcement_admin'
@@ -235,15 +250,49 @@ exports.eventAction = async (req, res) => {
             event.companyFeedback = companyFeedback;
         } else if (action === 'cancel') {
             event.status = 'cancelled';
-            event.companyFeedback = companyFeedback || 'Cancelled by company';
-        } else {
-            return res.status(400).json({ message: 'Invalid action' });
+            event.companyFeedback = companyFeedback || '';
         }
 
         await event.save();
-        res.status(200).json({ message: `Event action '${action}' applied successfully`, event });
+        res.status(200).json({ message: `Event ${action}ed successfully`, event });
     } catch (err) {
         console.error('eventAction Error:', err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Internal server error while performing action' });
+    }
+};
+
+exports.deleteCompanyEvent = async (req, res) => {
+    const Event = require('../models/Event');
+    const Application = require('../models/Application');
+    const Notification = require('../models/Notification');
+    try {
+        const { id } = req.params;
+        const companyId = req.user.userId;
+
+        const event = await Event.findById(id);
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+
+        // Ensure the company owns the event (safely check both fields)
+        const isOwner = (event.companyRef && event.companyRef.toString() === companyId) || 
+                        (event.createdBy && event.createdBy.toString() === companyId);
+
+        if (!isOwner) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        // 1. Remove from company's events list
+        await Company.findByIdAndUpdate(companyId, { $pull: { events: id } });
+
+        // 2. Delete associated Applications and Notifications
+        await Application.deleteMany({ eventId: id });
+        await Notification.deleteMany({ eventId: id });
+
+        // 3. Delete the event itself
+        await Event.findByIdAndDelete(id);
+
+        res.status(200).json({ message: 'Event and associated data deleted successfully' });
+    } catch (err) {
+        console.error('deleteCompanyEvent Error:', err);
+        res.status(500).json({ message: 'Internal server error while deleting event' });
     }
 };

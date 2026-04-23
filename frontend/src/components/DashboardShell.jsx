@@ -131,6 +131,12 @@ export default function DashboardShell() {
                                     disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
                                 />
                                 <SidebarItem
+                                    icon={ClipboardList}
+                                    label="My Applications"
+                                    path="/dashboard/student/applications"
+                                    disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                />
+                                <SidebarItem
                                     icon={CheckCircle}
                                     label="Verify Yourself"
                                     path="/dashboard/student/verify"

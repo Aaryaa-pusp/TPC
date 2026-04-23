@@ -14,5 +14,6 @@ router.put('/profile', verifyToken, requireRole(['company']), upload.single('pro
 // New Event Workflow Routes
 router.post('/events/request', verifyToken, requireRole(['company']), isCompanyVerified, companyController.requestEvent);
 router.put('/events/:id/action', verifyToken, requireRole(['company']), isCompanyVerified, companyController.eventAction);
+router.delete('/events/:id', verifyToken, requireRole(['company']), isCompanyVerified, companyController.deleteCompanyEvent);
 
 module.exports = router;

@@ -63,7 +63,13 @@ const eventSchema = new mongoose.Schema({
     },
     adminNotes: {
         type: String,
-    }
+    },
+    rounds: [{
+        title: { type: String, required: true },
+        description: { type: String },
+        startDate: { type: Date },
+        endDate: { type: Date },
+    }],
 }, { timestamps: true });
 
 // If endDate is not set, default to startDate

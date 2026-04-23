@@ -23,6 +23,7 @@ import CompanyVerificationForm from './components/CompanyVerificationForm';
 import StudentAnnouncements from './components/StudentAnnouncements';
 import EditProfile from './pages/EditProfile';
 import MyResumes from './pages/MyResumes';
+import StudentApplications from './components/StudentApplications';
 import CompanyEvents from './components/CompanyEvents';
 import AdminEventWorkflows from './components/AdminEventWorkflows';
 import useCursorGlow from './hooks/useCursorGlow';
@@ -49,6 +50,7 @@ function App() {
             <Route path="student/verify" element={<StudentVerificationForm />} />
             <Route path="student/announcements" element={<StudentAnnouncements />} />
             <Route path="student/calendar" element={<StudentCalendar />} />
+            <Route path="student/applications" element={<StudentApplications />} />
             <Route path="student/resumes" element={<MyResumes />} />
             <Route path="student/profile" element={<EditProfile />} />
             <Route path="student/*" element={<Navigate to="/dashboard/student" replace />} />

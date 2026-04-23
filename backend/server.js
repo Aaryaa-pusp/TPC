@@ -26,6 +26,11 @@ const developerRoutes = require('./routes/developerRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const pastRecruiterRoutes = require('./routes/pastRecruiterRoutes');
 
+// Ensure all models (including discriminators) are registered at startup
+require('./models/Application');
+require('./models/Notification');
+require('./models/Student'); // Student is a User discriminator — must register before any populate
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/company', companyRoutes);
