@@ -1,6 +1,64 @@
 const Event = require('../models/Event');
 const Student = require('../models/Student');
 const Announcement = require('../models/Announcement');
+const Application = require('../models/Application');
+
+exports.getStudentStats = async (req, res) => {
+    try {
+        const studentId = req.user.userId;
+        const student = await Student.findById(studentId);
+        if (!student) return res.status(404).json({ message: 'Student not found.' });
+
+        // Parse "last seen" timestamps sent by the client (stored in localStorage)
+        const lastSeenApps = req.query.lastSeenApplicationsAt
+            ? new Date(Number(req.query.lastSeenApplicationsAt))
+            : new Date(0);
+        const lastSeenAnn = req.query.lastSeenAnnouncementsAt
+            ? new Date(Number(req.query.lastSeenAnnouncementsAt))
+            : new Date(0);
+
+        // Count applications with updates since last seen:
+        // 1. Final decision (accepted / rejected), OR
+        // 2. Round advancement (still pending but moved to a later round)
+        const newApplicationUpdates = await Application.countDocuments({
+            studentId,
+            updatedAt: { $gt: lastSeenApps },
+            $or: [
+                { status: { $in: ['accepted', 'rejected'] } },
+                { status: 'pending', currentRoundIndex: { $gt: 0 } }
+            ]
+        });
+
+        // Build announcement targeting filter (same logic as getAnnouncements)
+        const targetBranchesRegex = [/^all$/i];
+        if (student.department) targetBranchesRegex.push(new RegExp(`^${student.department}$`, 'i'));
+
+        const audienceFilter = { $and: [
+            { $or: [{ targetBranches: { $size: 0 } }, { targetBranches: { $in: targetBranchesRegex } }] },
+            student.program
+                ? { $or: [{ targetPrograms: { $size: 0 } }, { targetPrograms: { $in: [student.program] } }] }
+                : { targetPrograms: { $size: 0 } },
+            student.currentYearOfStudy
+                ? { $or: [{ targetYears: { $size: 0 } }, { targetYears: { $in: [student.currentYearOfStudy] } }] }
+                : { targetYears: { $size: 0 } },
+        ]};
+
+        // Count announcements that are NEW or EDITED after the student last saw them
+        const newAnnouncements = await Announcement.countDocuments({
+            ...audienceFilter,
+            $or: [
+                { createdAt: { $gt: lastSeenAnn } },
+                { editedAt: { $gt: lastSeenAnn } }
+            ]
+        });
+
+        res.status(200).json({ newApplicationUpdates, newAnnouncements });
+    } catch (err) {
+        console.error('getStudentStats Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 
 exports.getEvents = async (req, res) => {
     try {

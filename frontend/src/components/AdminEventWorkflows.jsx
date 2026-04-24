@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, CheckCircle, ChevronDown, Check, Clock, X, MessageSquare } from 'lucide-react';
+import { Calendar, CheckCircle, Check, Clock, X, MessageSquare } from 'lucide-react';
 
 export default function AdminEventWorkflows() {
     const { user, token } = useAuth();
+
+    const [pendingCounts, setPendingCounts] = useState({ needsDateAllocation: 0, needsFinalVerification: 0 });
+
+    const fetchPendingCounts = async () => {
+        try {
+            const headers = { Authorization: `Bearer ${token}` };
+            const [announcementRes, adminRes] = await Promise.all([
+                api.get('/api/admin/events/workflow/pending-announcement', { headers }),
+                api.get('/api/admin/events/workflow/pending-admin', { headers }),
+            ]);
+            setPendingCounts({
+                needsDateAllocation: announcementRes.data?.events?.length || 0,
+                needsFinalVerification: adminRes.data?.events?.length || 0,
+            });
+        } catch (err) {
+            console.error('Failed to fetch pending counts', err);
+        }
+    };
     
     const canDoAnnouncement = user.adminType === 'super_admin' || user.adminType === 'announcement_admin';
     const canDoAdminVerify = user.adminType === 'super_admin' || user.adminType === 'student_admin';
@@ -23,6 +41,12 @@ export default function AdminEventWorkflows() {
     useEffect(() => {
         fetchWorkflowEvents();
     }, [activeTab, token]);
+
+    useEffect(() => {
+        if (user.adminType === 'super_admin') {
+            fetchPendingCounts();
+        }
+    }, [token]);
 
     const fetchWorkflowEvents = async () => {
         setLoading(true);
@@ -50,6 +74,7 @@ export default function AdminEventWorkflows() {
             });
             setAllotModal({ show: false, eventId: null });
             fetchWorkflowEvents();
+            fetchPendingCounts();
             setDates({ startDate: '', endDate: '', deadline: '', adminNotes: '' });
         } catch (err) {
             console.error(err);
@@ -65,6 +90,7 @@ export default function AdminEventWorkflows() {
             });
             setVerifyModal({ show: false, eventId: null });
             fetchWorkflowEvents();
+            fetchPendingCounts();
             setVerifyNotes('');
         } catch (err) {
             console.error(err);
@@ -81,12 +107,68 @@ export default function AdminEventWorkflows() {
                 <p className="text-slate-500 dark:text-slate-400 mt-1">Review, allot dates, and verify event proposals from companies.</p>
 
                 {user.adminType === 'super_admin' && (
-                    <div className="flex gap-4 mt-6">
-                        <button onClick={() => setActiveTab('announcement')} className={`px-5 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'announcement' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                    <div className="flex gap-6 mt-6">
+                        <button
+                            onClick={() => setActiveTab('announcement')}
+                            style={{ position: 'relative' }}
+                            className={`px-5 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'announcement' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                        >
                             Needs Date Allocation
+                            {pendingCounts.needsDateAllocation > 0 && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '-8px',
+                                    minWidth: '20px',
+                                    height: '20px',
+                                    borderRadius: '9999px',
+                                    backgroundColor: '#dc2626',
+                                    color: '#fff',
+                                    fontSize: '11px',
+                                    fontWeight: 900,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '0 5px',
+                                    border: '2px solid white',
+                                    zIndex: 10,
+                                    pointerEvents: 'none',
+                                    lineHeight: 1,
+                                }}>
+                                    {pendingCounts.needsDateAllocation > 99 ? '99+' : pendingCounts.needsDateAllocation}
+                                </span>
+                            )}
                         </button>
-                        <button onClick={() => setActiveTab('admin')} className={`px-5 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                        <button
+                            onClick={() => setActiveTab('admin')}
+                            style={{ position: 'relative' }}
+                            className={`px-5 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                        >
                             Needs Final Verification
+                            {pendingCounts.needsFinalVerification > 0 && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '-8px',
+                                    minWidth: '20px',
+                                    height: '20px',
+                                    borderRadius: '9999px',
+                                    backgroundColor: '#dc2626',
+                                    color: '#fff',
+                                    fontSize: '11px',
+                                    fontWeight: 900,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '0 5px',
+                                    border: '2px solid white',
+                                    zIndex: 10,
+                                    pointerEvents: 'none',
+                                    lineHeight: 1,
+                                }}>
+                                    {pendingCounts.needsFinalVerification > 99 ? '99+' : pendingCounts.needsFinalVerification}
+                                </span>
+                            )}
                         </button>
                     </div>
                 )}

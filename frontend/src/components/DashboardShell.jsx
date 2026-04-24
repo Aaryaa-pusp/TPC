@@ -1,13 +1,81 @@
-import React from 'react';
-import { Outlet, Navigate, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api';
 import { UserCircle, LogOut, Bell, Building, CheckCircle, Database, Calendar as CalendarIcon, FileText, Settings, ShieldAlert, LayoutDashboard, House, ClipboardList } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import logo from '../assets/logo.png';
 
 export default function DashboardShell() {
-    const { user, logout } = useAuth();
+    const { user, logout, token } = useAuth();
     const navigate = useNavigate();
+
+    const location = useLocation();
+
+    // localStorage helpers keyed by userId so multiple users share the same browser safely
+    const lsKey = (key) => `${key}_${user?._id || user?.userId || 'u'}`;
+    const getSeenTs = (key) => Number(localStorage.getItem(lsKey(key)) || '0');
+    const setSeenTs = (key) => localStorage.setItem(lsKey(key), String(Date.now()));
+
+    const [adminStats, setAdminStats] = useState({
+        pendingCompanies: 0, pendingStudents: 0,
+        needsDateAllocation: 0, needsFinalVerification: 0, totalAnnouncements: 0,
+    });
+    const [companyStats, setCompanyStats] = useState({ pendingApproval: 0 });
+    const [studentStats, setStudentStats] = useState({ newApplicationUpdates: 0, newAnnouncements: 0 });
+    const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+    const fetchStats = () => {
+        if (!user || !token) return;
+        const headers = { Authorization: `Bearer ${token}` };
+        if (user.role === 'admin') {
+            api.get('/api/admin/dashboard-stats', { headers })
+                .then(res => setAdminStats(res.data))
+                .catch(err => console.error('Failed to fetch admin stats', err));
+        } else if (user.role === 'company') {
+            api.get('/api/company/stats', { headers })
+                .then(res => setCompanyStats(res.data))
+                .catch(err => console.error('Failed to fetch company stats', err));
+        } else if (user.role === 'student') {
+            const params = new URLSearchParams({
+                lastSeenApplicationsAt: getSeenTs('lastSeenApplicationsAt'),
+                lastSeenAnnouncementsAt: getSeenTs('lastSeenAnnouncementsAt'),
+            });
+            api.get(`/api/student/stats?${params}`, { headers })
+                .then(res => setStudentStats(res.data))
+                .catch(err => console.error('Failed to fetch student stats', err));
+        }
+    };
+
+    useEffect(() => { fetchStats(); }, [user, token, refetchTrigger]);
+
+    // Clear relevant badge when any role navigates to a badged section
+    useEffect(() => {
+        const p = location.pathname;
+
+        if (user?.role === 'student') {
+            if (p.includes('/announcements')) {
+                setSeenTs('lastSeenAnnouncementsAt');
+                setStudentStats(prev => ({ ...prev, newAnnouncements: 0 }));
+            }
+            if (p.includes('/applications')) {
+                setSeenTs('lastSeenApplicationsAt');
+                setStudentStats(prev => ({ ...prev, newApplicationUpdates: 0 }));
+            }
+        }
+
+        if (user?.role === 'admin') {
+            if (p.includes('/companies'))         setAdminStats(prev => ({ ...prev, pendingCompanies: 0 }));
+            if (p.includes('/students/verify'))   setAdminStats(prev => ({ ...prev, pendingStudents: 0 }));
+            if (p.includes('/event-workflows'))   setAdminStats(prev => ({ ...prev, needsDateAllocation: 0, needsFinalVerification: 0 }));
+        }
+
+        if (user?.role === 'company') {
+            if (p.includes('/events'))            setCompanyStats(prev => ({ ...prev, pendingApproval: 0 }));
+        }
+    }, [location.pathname]);
+
+    const refetchAdminStats = () => setRefetchTrigger(t => t + 1);
 
     if (!user) {
         return <Navigate to="/login" replace />;
@@ -26,7 +94,7 @@ export default function DashboardShell() {
         navigate('/login');
     };
 
-    const SidebarItem = ({ icon: Icon, label, path, disabled }) => {
+    const SidebarItem = ({ icon: Icon, label, path, disabled, badgeCount }) => {
         const isDashboardHome = path === `/dashboard/${user.role}`;
         const isActive = isDashboardHome
             ? window.location.pathname === path || window.location.pathname === `${path}/`
@@ -42,6 +110,26 @@ export default function DashboardShell() {
             >
                 <Icon className={`w-5 h-5 ${disabled ? 'text-gray-400 dark:text-slate-500' : isActive ? 'text-blue-600 dark:text-blue-300' : 'text-slate-400 group-hover:text-blue-600 transition-colors dark:text-slate-500 dark:group-hover:text-blue-300'}`} />
                 <span>{label}</span>
+                {badgeCount > 0 && !disabled && (
+                    <span style={{
+                        marginLeft: 'auto',
+                        minWidth: '20px',
+                        height: '20px',
+                        borderRadius: '9999px',
+                        backgroundColor: '#dc2626',
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: 900,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0 5px',
+                        lineHeight: 1,
+                        flexShrink: 0,
+                    }}>
+                        {badgeCount > 99 ? '99+' : badgeCount}
+                    </span>
+                )}
                 {disabled && <ShieldAlert className="w-4 h-4 ml-auto text-yellow-500" title="Verification Pending" />}
             </button>
         );
@@ -117,6 +205,7 @@ export default function DashboardShell() {
                                     label="Announcements"
                                     path="/dashboard/student/announcements"
                                     disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                    badgeCount={studentStats.newAnnouncements}
                                 />
                                 <SidebarItem
                                     icon={CalendarIcon}
@@ -135,6 +224,7 @@ export default function DashboardShell() {
                                     label="My Applications"
                                     path="/dashboard/student/applications"
                                     disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
+                                    badgeCount={studentStats.newApplicationUpdates}
                                 />
                                 <SidebarItem
                                     icon={CheckCircle}
@@ -152,7 +242,12 @@ export default function DashboardShell() {
                                     path="/dashboard/company/database"
                                     disabled={user.verificationStatus === 'pending' || user.verificationStatus === 'unsubmitted'}
                                 />
-                                <SidebarItem icon={CalendarIcon} label="Manage Events" path="/dashboard/company/events" />
+                                <SidebarItem
+                                    icon={CalendarIcon}
+                                    label="Manage Events"
+                                    path="/dashboard/company/events"
+                                    badgeCount={companyStats.pendingApproval}
+                                />
                                 <SidebarItem icon={CheckCircle} label="Verification Status" path="/dashboard/company/verify" />
                                 <SidebarItem icon={Building} label="Company Profile" path="/dashboard/company/profile" />
                             </>
@@ -161,18 +256,27 @@ export default function DashboardShell() {
                         {user.role === 'admin' && (
                             <>
                                 {(user.adminType === 'super_admin' || user.adminType === 'announcement_admin') && (
-                                    <SidebarItem icon={Bell} label="Manage Announcements" path="/dashboard/admin/announcements" />
+                                    <SidebarItem
+                                        icon={Bell}
+                                        label="Manage Announcements"
+                                        path="/dashboard/admin/announcements"
+                                    />
                                 )}
                                 {user.adminType === 'super_admin' && (
                                     <>
-                                        <SidebarItem icon={CheckCircle} label="Verify Companies" path="/dashboard/admin/companies" />
-                                        <SidebarItem icon={CheckCircle} label="Verify Students" path="/dashboard/admin/students/verify" />
+                                        <SidebarItem icon={CheckCircle} label="Verify Companies" path="/dashboard/admin/companies" badgeCount={adminStats.pendingCompanies} />
+                                        <SidebarItem icon={CheckCircle} label="Verify Students" path="/dashboard/admin/students/verify" badgeCount={adminStats.pendingStudents} />
                                     </>
                                 )}
                                 {(user.adminType === 'super_admin' || user.adminType === 'student_admin') && (
                                     <SidebarItem icon={CalendarIcon} label="Manage Calendar" path="/dashboard/admin/calendar" />
                                 )}
-                                <SidebarItem icon={ClipboardList} label="Event Workflows" path="/dashboard/admin/event-workflows" />
+                                <SidebarItem 
+                                    icon={ClipboardList} 
+                                    label="Event Workflows" 
+                                    path="/dashboard/admin/event-workflows" 
+                                    badgeCount={user.adminType === 'super_admin' ? (adminStats.needsDateAllocation + adminStats.needsFinalVerification) : (user.adminType === 'announcement_admin' ? adminStats.needsDateAllocation : (user.adminType === 'student_admin' ? adminStats.needsFinalVerification : 0))}
+                                />
                                 <SidebarItem icon={Settings} label="Assign Powers" path="/dashboard/admin/assign-powers" />
                             </>
                         )}
@@ -182,7 +286,7 @@ export default function DashboardShell() {
                 {/* Main Content Area */}
                 <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50 relative dark:bg-slate-950">
                     <div className="max-w-6xl mx-auto h-full">
-                        <Outlet />
+                        <Outlet context={{ adminStats, refetchAdminStats }} />
                     </div>
                 </main>
             </div>

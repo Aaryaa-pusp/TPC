@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useOutletContext } from 'react-router-dom';
 import { ShieldCheck, X, Check, Building2, User, Globe, Mail, Phone } from 'lucide-react';
 
 export default function CompanyVerificationQueue() {
     const { token, user } = useAuth();
+    const { refetchAdminStats } = useOutletContext() || {};
     const [pendingCompanies, setPendingCompanies] = useState([]);
     const [selectedCompany, setSelectedCompany] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -48,6 +50,7 @@ export default function CompanyVerificationQueue() {
             } else {
                 setSelectedCompany(null);
             }
+            if (refetchAdminStats) refetchAdminStats();
 
         } catch (err) {
             console.error(`Failed to mark company as ${status}:`, err);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useOutletContext } from 'react-router-dom';
 import { Check, X, FileText, User } from 'lucide-react';
 
 export default function StudentVerificationQueue() {
     const { token } = useAuth();
+    const { refetchAdminStats } = useOutletContext() || {};
     const [pendingStudents, setPendingStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -46,6 +48,7 @@ export default function StudentVerificationQueue() {
             } else {
                 setSelectedStudent(null);
             }
+            if (refetchAdminStats) refetchAdminStats();
 
         } catch (err) {
             console.error(`Failed to mark student as ${status}:`, err);

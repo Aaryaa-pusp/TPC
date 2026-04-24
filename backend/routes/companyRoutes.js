@@ -6,6 +6,8 @@ const { upload } = require('../utils/cloudinaryConfig');
 
 // Get students who applied to this company's events
 router.get('/students', verifyToken, requireRole(['company', 'admin']), isCompanyVerified, companyController.getStudents);
+// Dashboard stats (pending approvals, etc)
+router.get('/stats', verifyToken, requireRole(['company']), companyController.getCompanyStats);
 // Get all events created by this company (for the dropdown selector)
 router.get('/events', verifyToken, requireRole(['company']), companyController.getCompanyEvents);
 router.post('/verify', verifyToken, requireRole(['company']), companyController.submitVerification);

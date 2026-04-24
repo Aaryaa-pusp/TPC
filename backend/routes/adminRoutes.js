@@ -5,6 +5,8 @@ const { verifyToken, requireRole, checkAdminRole } = require('../middleware/auth
 
 router.use(verifyToken, requireRole(['admin'])); // All routes require admin
 
+router.get('/dashboard-stats', adminController.getDashboardStats);
+
 router.get('/companies/pending', checkAdminRole(['super_admin']), adminController.getPendingCompanies);
 router.put('/companies/:companyId/verify', checkAdminRole(['super_admin']), adminController.verifyCompany);
 

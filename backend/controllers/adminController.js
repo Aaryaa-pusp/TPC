@@ -5,6 +5,27 @@ const Event = require('../models/Event');
 const Announcement = require('../models/Announcement');
 const Student = require('../models/Student');
 
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const pendingCompanies = await Company.countDocuments({ verificationStatus: 'pending' });
+        const pendingStudents = await Student.countDocuments({ verificationStatus: 'pending' });
+        const needsDateAllocation = await Event.countDocuments({ status: 'pending_announcement_admin' });
+        const needsFinalVerification = await Event.countDocuments({ status: 'pending_admin' });
+        const totalAnnouncements = await Announcement.countDocuments({});
+
+        res.status(200).json({
+            pendingCompanies,
+            pendingStudents,
+            needsDateAllocation,
+            needsFinalVerification,
+            totalAnnouncements,
+        });
+    } catch (err) {
+        console.error('getDashboardStats Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.getPendingCompanies = async (req, res) => {
     try {
         const companies = await Company.find({ verificationStatus: 'pending' });

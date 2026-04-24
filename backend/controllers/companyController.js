@@ -1,6 +1,21 @@
 const Student = require('../models/Student');
 const Company = require('../models/Company');
 
+exports.getCompanyStats = async (req, res) => {
+    const Event = require('../models/Event');
+    try {
+        const companyId = req.user.userId;
+        const pendingApproval = await Event.countDocuments({
+            companyRef: companyId,
+            status: 'pending_company_approval'
+        });
+        res.status(200).json({ pendingApproval });
+    } catch (err) {
+        console.error('getCompanyStats Error:', err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 exports.getStudents = async (req, res) => {
     const Event = require('../models/Event');
     try {

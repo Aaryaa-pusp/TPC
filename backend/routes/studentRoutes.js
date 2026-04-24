@@ -8,6 +8,7 @@ const { upload } = require('../utils/cloudinaryConfig');
 
 router.get('/events', verifyToken, requireRole(['student', 'admin']), studentController.getEvents);
 router.get('/announcements', verifyToken, requireRole(['student', 'admin']), studentController.getAnnouncements);
+router.get('/stats', verifyToken, requireRole(['student']), studentController.getStudentStats);
 
 router.get('/calendar', verifyToken, requireRole(['student', 'admin']), calendarController.getUnifiedCalendar);
 
