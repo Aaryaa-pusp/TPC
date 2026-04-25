@@ -1,8 +1,8 @@
-# IIT Patna Training & Placement Cell (TPC) Portal
+# IIT Patna Centre of Career Development and Counseling (CCDC) Portal
 
 <div align="center">
 
-### 🌐 Live at **[tpc-pwj4.onrender.com](https://tpc-pwj4.onrender.com)**
+### 🌐 Live at **[ccdc-pwj4.onrender.com](https://ccdc-pwj4.onrender.com)**
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
@@ -18,7 +18,7 @@
 
 ## Overview
 
-The official Training and Placement Committee (TPC) portal for **IIT Patna**. A full-stack web application that connects **Students**, **Companies**, and **TPC Admins** — streamlining the recruitment lifecycle from announcement to placement.
+The official Centre of Career Development and Counseling (CCDC) portal for **IIT Patna**. A full-stack web application that connects **Students**, **Companies**, and **CCDC Admins** — streamlining the recruitment lifecycle from announcement to placement.
 
 ## Key Features
 
@@ -64,7 +64,7 @@ The official Training and Placement Committee (TPC) portal for **IIT Patna**. A 
 ## Project Structure
 
 ```
-TPC/
+CCDC/
 ├── backend/
 │   ├── controllers/        # Business logic
 │   │   ├── adminController.js
@@ -123,18 +123,18 @@ The application is deployed on **[Render](https://render.com)** as two separate 
 
 | Service | URL | Type |
 |---------|-----|------|
-| **Frontend** | [tpc-pwj4.onrender.com](https://tpc-pwj4.onrender.com) | Static Site |
-| **Backend** | [tpc-backend-kyem.onrender.com](https://tpc-backend-kyem.onrender.com) | Web Service |
+| **Frontend** | [ccdc-pwj4.onrender.com](https://ccdc-pwj4.onrender.com) | Static Site |
+| **Backend** | [ccdc-backend-kyem.onrender.com](https://ccdc-backend-kyem.onrender.com) | Web Service |
 
 ### Render Configuration
 
 **Frontend (Static Site):**
-- Root Directory: `TPC/frontend`
+- Root Directory: `CCDC/frontend`
 - Build Command: `npm install && npm run build`
 - Publish Directory: `dist`
 
 **Backend (Web Service):**
-- Root Directory: `TPC/backend`
+- Root Directory: `CCDC/backend`
 - Build Command: `npm install`
 - Start Command: `npm start`
 
@@ -152,7 +152,7 @@ The application is deployed on **[Render](https://render.com)** as two separate 
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd TPC
+   cd CCDC
    ```
 
 2. **Backend Setup:**
@@ -198,7 +198,7 @@ The project is fully Dockerized. You can run the entire stack with a single comm
 ### Docker Project Structure
 
 ```
-IT_workshop/
+DBMS project/
 ├── docker-compose.yml          # Orchestrates backend + frontend containers
 ├── backend/
 │   ├── Dockerfile              # node:22-alpine + nodemon (dev server)
@@ -296,4 +296,4 @@ All API routes are prefixed with `/api`:
 
 ## Acknowledgements
 
-Designed and developed for the **Training and Placement Cell, IIT Patna**.
+Designed and developed for the **Centre of Career Development and Counseling, IIT Patna**.
