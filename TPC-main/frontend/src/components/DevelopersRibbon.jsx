@@ -2,27 +2,33 @@ import React from 'react';
 
 const TEAM_MEMBERS = [
     {
-        name: "Ravi Kumar", role: "Full Stack Engineer",
+        name: "Ravi Kumar",
+        rollNumber: "2401AI51",
         image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
     },
     {
-        name: "Parth Kataria", role: "Frontend Architect",
+        name: "Parth Kataria",
+        rollNumber: "2401CS88",
         image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop"
     },
     {
-        name: "Aaryaa", role: "Backend Specialist",
+        name: "Aaryaa",
+        rollNumber: "2401CS85",
         image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
     },
     {
-        name: "Anjney Lawaniya", role: "Chief Vibe Officer",
+        name: "Anjney Lawaniya",
+        rollNumber: "2401CS87",
         image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop"
     },
     {
-        name: "Devansh Kumar Sharma", role: "DevOps Engineer",
+        name: "Devansh Kumar Sharma",
+        rollNumber: "2401CS93",
         image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop"
     },
     {
-        name: "Shikhar Yadav", role: "Chief Vibe Officer",
+        name: "Shikhar Yadav",
+        rollNumber: "2402CS11",
         image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop"
     },
 ];
@@ -31,10 +37,7 @@ export default function DevelopersRibbon() {
     return (
         <section className="relative bg-white pb-24 pt-12 border-t border-gray-100 overflow-hidden dark:bg-slate-950 dark:border-slate-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                <h3 className="text-xl font-bold text-gray-900 tracking-tight mb-2 dark:text-slate-100">Developed By</h3>
-                <p className="text-sm text-gray-500 font-light mb-12 max-w-lg mx-auto dark:text-slate-400">
-                    The brilliant engineering minds working tirelessly behind the scenes to power the official IIT Patna recruitment infrastructure.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 tracking-tight mb-12 dark:text-slate-100">Developed By</h3>
 
                 {/* Wave Ribbon */}
                 <div className="flex flex-wrap justify-center gap-8 md:gap-12">
@@ -56,7 +59,7 @@ export default function DevelopersRibbon() {
                             </div>
                             <div className="mt-4 text-center">
                                 <h4 className="text-gray-900 font-bold text-sm dark:text-slate-100">{member.name}</h4>
-                                <p className="text-gray-500 text-xs font-medium dark:text-slate-400">{member.role}</p>
+                                <p className="text-gray-500 text-xs font-medium dark:text-slate-400">{member.rollNumber}</p>
                             </div>
                         </div>
                     ))}

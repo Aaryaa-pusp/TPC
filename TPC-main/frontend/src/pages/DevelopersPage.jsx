@@ -34,6 +34,15 @@ const itemVariants = {
 
 const MotionDiv = motion.div;
 
+const ROLL_NUMBERS = {
+    "Ravi Kumar": "2401AI51",
+    "Parth Kataria": "2401CS88",
+    "Aaryaa": "2401CS85",
+    "Anjney Lawaniya": "2401CS87",
+    "Devansh Kumar Sharma": "2401CS93",
+    "Shikhar Yadav": "2402CS11"
+};
+
 const DeveloperCard = ({ member, index }) => {
     // Explicit organic staggered offsets as requested
     // Card 0: 0px, Card 1: 40px, Card 2: -20px 
@@ -80,12 +89,9 @@ const DeveloperCard = ({ member, index }) => {
                             <h3 className="text-xl font-bold font-sans text-gray-900 tracking-tight mb-1 dark:text-slate-100">
                                 {member.name}
                             </h3>
-                            <p className="text-sm font-medium text-gray-500 mb-3 dark:text-slate-400">
-                                {member.role}
+                            <p className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                                {ROLL_NUMBERS[member.name] || member.role}
                             </p>
-                            <span className="text-xs text-blue-600 font-medium bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full inline-block dark:bg-cyan-950/50 dark:border-cyan-800 dark:text-cyan-200">
-                                {member.specialTag}
-                            </span>
                         </div>
 
                         {/* Floating Social Slide-Up on Hover */}
@@ -248,15 +254,9 @@ export default function DevelopersPage() {
                     transition={{ duration: 0.8 }}
                     className="text-center mb-32"
                 >
-                    <div className="inline-block px-4 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-gray-600 font-bold tracking-widest uppercase text-xs mb-8 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
-                        The Core Team
-                    </div>
                     <h1 className="text-5xl md:text-6xl font-serif text-gray-900 tracking-tight mb-6 dark:text-slate-100">
                         Meet the Developers
                     </h1>
-                    <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed dark:text-slate-400">
-                        The engineering minds and designers forging the premier digital recruitment platform for the Indian Institute of Technology Patna.
-                    </p>
                 </MotionDiv>
 
                 {/* Asymmetrical Staggered Onyx Grid */}
